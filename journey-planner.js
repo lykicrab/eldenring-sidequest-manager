@@ -99,6 +99,13 @@
   }
   function renderPlan(){
     const steps=state.plan.steps, done=steps.filter(s=>s.completed).length;
+    const questProgress=new Map(),lastQuestStep=new Map();
+    steps.forEach(s=>{
+      if(s.questId==="story")return;
+      const progress=questProgress.get(s.questId)||{done:0,total:0};
+      progress.total++;if(s.completed)progress.done++;
+      questProgress.set(s.questId,progress);lastQuestStep.set(s.questId,s.id);
+    });
     $("planProgress").textContent=`${state.plan.selectedCount} 位 NPC · ${done} / ${steps.length} 步完成`;
     $("planProgressBar").max=Math.max(1,steps.length);$("planProgressBar").value=done;
     $("planTabCount").textContent=steps.length?`顺序计划 ${done}/${steps.length}`:"顺序计划";
@@ -129,6 +136,9 @@
         if(s.prerequisites.length){const names=s.prerequisites.map(id=>steps.find(p=>p.id===id)?.title).filter(Boolean);detail.append(el("p","step-deps","排在前面："+names.slice(0,8).join("；")+(names.length>8?` 等 ${names.length} 项已选择的步骤。`:"")));}
         copy.append(detail);
       }
+      const quest=questProgress.get(s.questId);
+      if(lastQuestStep.get(s.questId)===s.id&&quest?.done===quest?.total)
+        copy.append(el("strong","quest-complete",`✓ ${s.npc}支线已完成`));
       row.append(check,copy);$("planStepList").append(row);
     });
     if(!count)$("planStepList").append(el("p","plan-empty",state.plan.issues.length?"请先处理上方选择冲突。":steps.length?"当前筛选没有步骤。":"在“选择 NPC”中添加人物，即可生成本周目的流程。"));
