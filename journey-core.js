@@ -3,6 +3,7 @@
   const own = (value, key) => Object.prototype.hasOwnProperty.call(value || {}, key);
   const distinct = values => [...new Set(values)];
   const byId = (left, right) => left < right ? -1 : left > right ? 1 : 0;
+  const areaKey = region => String(region || "").split(/\s*(?:\/|→|：)\s*/)[0].trim();
   const id = () => {
     if (globalThis.crypto && typeof globalThis.crypto.randomUUID === "function") return globalThis.crypto.randomUUID().replaceAll("-", "");
     return Array.from({ length: 32 }, () => Math.floor(Math.random() * 16).toString(16)).join("");
@@ -144,7 +145,18 @@
     const steps = [];
     while (remaining.size) {
       const ready = [...remaining].filter(([, dependencies]) => dependencies.size === 0).map(([stepId]) => included.get(stepId))
-        .sort((left, right) => left.step.order - right.step.order || byId(left.step.id, right.step.id))[0];
+        .sort((left, right) => {
+          const previous = steps[steps.length - 1];
+          if (previous) {
+            const leftSameArea = areaKey(left.step.region) === areaKey(previous.region);
+            const rightSameArea = areaKey(right.step.region) === areaKey(previous.region);
+            if (leftSameArea !== rightSameArea) return rightSameArea - leftSameArea;
+            const leftSameNpc = left.npc === previous.npc;
+            const rightSameNpc = right.npc === previous.npc;
+            if (leftSameNpc !== rightSameNpc) return rightSameNpc - leftSameNpc;
+          }
+          return left.step.order - right.step.order || byId(left.step.id, right.step.id);
+        })[0];
       if (!ready) {
         issues.push({ message: "所选路线存在循环前置，无法生成可靠的顺序表。请保留当前选择并反馈路线组合。", fixes: [] });
         break;

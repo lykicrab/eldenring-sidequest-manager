@@ -2,6 +2,7 @@
 (() => {
   "use strict";
   let state = null, activeNpc = "", group = "base", tab = "choose", pending = false, nameCommand = "new";
+  const collapsedCollections = new Set();
   const $ = id => document.getElementById(id);
   const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n; };
   function act(command, data={}) {
@@ -146,7 +147,11 @@
       const rows=c.items.filter(i=>!(filter==="pending"&&i.collected)&&!(filter==="done"&&!i.collected)&&
         (!query||`${c.title} ${c.npcs.join(" ")} ${i.name} ${i.region} ${i.detail}`.toLowerCase().includes(query)));
       if(!rows.length)continue;visible++;
-      const article=el("article","collection-group"),head=el("div","collection-heading"),collected=c.items.filter(i=>i.collected).length;
+      const article=el("details","collection-group"),head=el("summary","collection-heading"),collected=c.items.filter(i=>i.collected).length;
+      article.open=!collapsedCollections.has(c.id);
+      article.addEventListener("toggle",()=>{
+        if(article.open)collapsedCollections.delete(c.id);else collapsedCollections.add(c.id);
+      });
       head.append(el("h3","",c.title),el("p","collection-count",`已收集 ${collected} 份 / 本路线目标 ${c.requiredCount} 份 · ${c.items.length} 处可用来源${collected>=c.requiredCount?" · 已达收集目标":""}`),
         el("p","",`关联 NPC：${c.npcs.join("、")}`),el("p","",c.description));
       if(c.stepIds.length){const links=el("div","collection-links");links.append(button("查看相关任务步骤",()=>showRelatedStep(c)));head.append(links);}

@@ -35,6 +35,10 @@
     .planner-layout[hidden],.plan-checklist[hidden],.plan-issues[hidden],.plan-load-warning[hidden] { display:none; }
     .collection-list { flex:1; min-height:0; overflow:auto; padding:0 16px 16px; }
     .collection-group { margin:16px 0 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+    .collection-group>.collection-heading { display:block; cursor:pointer; list-style:none; }
+    .collection-group>.collection-heading::-webkit-details-marker { display:none; }
+    .collection-group>.collection-heading::after { content:"收起"; float:right; color:var(--blue); font-size:12px; }
+    .collection-group:not([open])>.collection-heading::after { content:"展开"; }
     .collection-heading { padding:13px 14px; background:#fafcfd; }.collection-heading h3 { margin:0 0 6px; font-size:15px; }.collection-heading p { margin:6px 0 0; font-size:12px; color:var(--muted); line-height:1.7; }.collection-heading .collection-count { color:#507862; font-weight:600; }
     .collection-table-wrap { overflow-x:auto; }.collection-table { width:100%; min-width:720px; border-collapse:collapse; font-size:12px; text-align:left; }.collection-table th { padding:10px 12px; background:#f5f7f9; color:#6e7886; font-weight:500; }.collection-table td { padding:12px; border-top:1px solid #edf0f2; vertical-align:top; line-height:1.7; }.collection-table th:first-child { width:48px; }.collection-table th:nth-child(2) { width:23%; }.collection-table th:nth-child(3) { width:24%; }.collection-table input { width:18px; height:18px; accent-color:#568772; cursor:pointer; }.collection-table label { cursor:pointer; }.collection-table tr.collected { background:#f3f8f5; }.collection-table tr.collected label { color:#648474; }.collection-table .step-warning { margin-top:5px; }.collection-links { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }.collection-source { font-size:11px; color:var(--muted); overflow-wrap:anywhere; margin:10px 14px; }.collection-source p { margin:5px 0; }
     .step-collection-link { margin-top:8px; color:var(--blue-dark); background:#f2f7fb; border:1px solid #d8e5ed; border-radius:5px; padding:5px 9px; font-size:12px; cursor:pointer; }
