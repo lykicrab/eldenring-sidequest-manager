@@ -145,24 +145,23 @@
     const steps = [];
     while (remaining.size) {
       const ready = [...remaining].filter(([, dependencies]) => dependencies.size === 0).map(([stepId]) => included.get(stepId))
-        .sort((left, right) => {
-          const previous = steps[steps.length - 1];
-          if (previous) {
-            const leftSameArea = areaKey(left.step.region) === areaKey(previous.region);
-            const rightSameArea = areaKey(right.step.region) === areaKey(previous.region);
-            if (leftSameArea !== rightSameArea) return rightSameArea - leftSameArea;
-            const leftSameNpc = left.npc === previous.npc;
-            const rightSameNpc = right.npc === previous.npc;
-            if (leftSameNpc !== rightSameNpc) return rightSameNpc - leftSameNpc;
-          }
-          return left.step.order - right.step.order || byId(left.step.id, right.step.id);
-        })[0];
-      if (!ready) {
+        .sort((left, right) => left.step.order - right.step.order || byId(left.step.id, right.step.id));
+      const previous = steps[steps.length - 1];
+      const nearby = ready.slice(0, 3);
+      const localityScore = node => {
+        const previousArea = areaKey(previous?.region);
+        const candidateArea = areaKey(node.step.region);
+        return Number(!!previousArea && candidateArea === previousArea) + Number(!!previous && node.npc === previous.npc);
+      };
+      const next = previous && nearby.length
+        ? nearby.reduce((best, node) => localityScore(node) > localityScore(best) ? node : best, nearby[0])
+        : ready[0];
+      if (!next) {
         issues.push({ message: "所选路线存在循环前置，无法生成可靠的顺序表。请保留当前选择并反馈路线组合。", fixes: [] });
         break;
       }
-      const step = ready.step;
-      steps.push({ id: step.id, questId: ready.questId, npc: ready.npc, title: step.title, detail: step.detail,
+      const step = next.step;
+      steps.push({ id: step.id, questId: next.questId, npc: next.npc, title: step.title, detail: step.detail,
         region: step.region, warning: step.warning, prerequisites: distinct([...(step.needs || []), ...(step.after || [])].filter(dependency => included.has(dependency))),
         completed: profile.completed.includes(step.id) });
       remaining.delete(step.id);
