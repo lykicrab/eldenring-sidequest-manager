@@ -50,7 +50,7 @@
     if(!state)return;
     const next=state.plan.steps.find(s=>!s.completed);
     if(!next)return;
-    $("planSearch").value="";$("planFilter").value="pending";renderPlan();
+    $("planSearch").value="";$("planFilter").value="all";renderPlan();
     [...$("planStepList").querySelectorAll("[data-step-id]")].find(n=>n.dataset.stepId===next.id)?.scrollIntoView({block:"start",behavior:"smooth"});
   }
   function renderNpcs(){
