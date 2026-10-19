@@ -46,6 +46,13 @@
     $("npcChooser").hidden=tab!=="choose";$("planChecklist").hidden=tab!=="plan";$("planCollections").hidden=tab!=="collections";
     if(state){renderPlan();renderCollections();}
   }
+  function jumpToFirstPendingStep(){
+    if(!state)return;
+    const next=state.plan.steps.find(s=>!s.completed);
+    if(!next)return;
+    $("planSearch").value="";$("planFilter").value="pending";renderPlan();
+    [...$("planStepList").querySelectorAll("[data-step-id]")].find(n=>n.dataset.stepId===next.id)?.scrollIntoView({block:"start",behavior:"smooth"});
+  }
   function renderNpcs(){
     const query=$("npcSearch").value.trim().toLowerCase();
     const all=state.catalog.quests;
@@ -182,17 +189,17 @@
   $("cancelPlanName").addEventListener("click",()=>$("planNameDialog").close());
   $("planNew").addEventListener("click",()=>openName("new"));$("planClone").addEventListener("click",()=>openName("clone"));$("planRename").addEventListener("click",()=>openName("rename"));
   $("planProfile").addEventListener("change",()=>act("switch",{profileId:$("planProfile").value}));
-  document.querySelectorAll("[data-plan-tab]").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.planTab)));
+  document.querySelectorAll("[data-plan-tab]").forEach(b=>b.addEventListener("click",()=>{
+    switchTab(b.dataset.planTab);
+    if(b.dataset.planTab==="plan")jumpToFirstPendingStep();
+  }));
   document.querySelectorAll("[data-npc-group]").forEach(b=>b.addEventListener("click",()=>{group=b.dataset.npcGroup;activeNpc="";if(state)renderNpcs();}));
   $("npcSearch").addEventListener("input",()=>state&&renderNpcs());
   $("selectNpcGroup").addEventListener("click",()=>act("selectGroup",{category:group}));
   $("clearNpcGroup").addEventListener("click",()=>act("clearGroup",{category:group}));
   $("planSearch").addEventListener("input",()=>state&&renderPlan());$("planFilter").addEventListener("change",()=>state&&renderPlan());
   $("collectionSearch").addEventListener("input",()=>state&&renderCollections());$("collectionFilter").addEventListener("change",()=>state&&renderCollections());
-  $("planJump").addEventListener("click",()=>{
-    if(!state)return;$("planSearch").value="";$("planFilter").value="pending";renderPlan();
-    $("planStepList").querySelector(".plan-step")?.scrollIntoView({block:"start",behavior:"smooth"});
-  });
+  $("planJump").addEventListener("click",jumpToFirstPendingStep);
   window.requestJourneyPlanner=()=>{
     const result=window.WebJourney?.run("load");
     if(result)receive(result);
