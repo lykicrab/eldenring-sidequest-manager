@@ -60,24 +60,38 @@
   }
 
   function newProfile(name = "我的第一周目") {
-    return { id: id(), name, choices: {}, completed: [], collected: [], updatedAt: new Date().toISOString(), catalogVersion: 1 };
+    return { id: id(), name, choices: {}, completed: [], collected: [], stepOrder: [], updatedAt: new Date().toISOString(), catalogVersion: 1 };
   }
 
   function normalizeProfile(source) {
     if (!source || typeof source !== "object" || Array.isArray(source)) throw new Error("计划文件格式无效。");
-    const choices = read(source, "choices", {}), completed = read(source, "completed", []), collected = read(source, "collected", []);
+    const choices = read(source, "choices", {}), completed = read(source, "completed", []), collected = read(source, "collected", []), stepOrder = read(source, "stepOrder", []);
     const name = String(read(source, "name", "")).trim();
     const profileId = String(read(source, "id", ""));
     if (!/^[a-f\d]{32}$/i.test(profileId) || !name || name.length > 60 || !choices || typeof choices !== "object" || Array.isArray(choices) ||
-        !Array.isArray(completed) || !Array.isArray(collected)) throw new Error("计划名称、ID 或进度格式无效。");
+        !Array.isArray(completed) || !Array.isArray(collected) || !Array.isArray(stepOrder)) throw new Error("计划名称、ID 或进度格式无效。");
     return {
       id: profileId.toLowerCase(), name,
       choices: Object.fromEntries(Object.entries(choices).filter(([key, value]) => typeof key === "string" && typeof value === "string")),
       completed: distinct(completed.filter(value => typeof value === "string")),
       collected: distinct(collected.filter(value => typeof value === "string")),
+      stepOrder: distinct(stepOrder.filter(value => typeof value === "string")),
       updatedAt: String(read(source, "updatedAt", new Date().toISOString())),
       catalogVersion: Number(read(source, "catalogVersion", 1)) || 1
     };
+  }
+
+  function stepOrderError(steps, order) {
+    if (!Array.isArray(order) || order.length !== steps.length) return "步骤列表已变化，请重新拖动。";
+    const positions = new Map(order.map((stepId, index) => [stepId, index]));
+    if (positions.size !== steps.length || steps.some(step => !positions.has(step.id))) return "步骤列表已变化，请重新拖动。";
+    for (const step of steps) for (const prerequisiteId of step.prerequisites || []) {
+      if (positions.get(prerequisiteId) >= positions.get(step.id)) {
+        const prerequisite = steps.find(value => value.id === prerequisiteId);
+        return `顺序碰壁：“${step.title}”需要先完成“${prerequisite?.title || prerequisiteId}”，不能把“${prerequisite?.title || prerequisiteId}”移到它后面。`;
+      }
+    }
+    return "";
   }
 
   function generate(catalog, profile) {
@@ -168,6 +182,11 @@
       for (const dependencies of remaining.values()) dependencies.delete(step.id);
     }
 
+    if (profile.stepOrder?.length && !stepOrderError(steps, profile.stepOrder)) {
+      const positions = new Map(profile.stepOrder.map((stepId, index) => [stepId, index]));
+      steps.sort((left, right) => positions.get(left.id) - positions.get(right.id));
+    }
+
     const uniqueIssues = [...new Map(issues.map(issue => [issue.message, issue])).values()];
     const collections = uniqueIssues.length ? [] : catalog.collections.map(collection => {
       const routes = collection.routes.filter(route => (route.optionIds || []).includes(choices[route.questId]));
@@ -189,5 +208,13 @@
     profile.collected = [...values];
   }
 
-  globalThis.JourneyCore = Object.freeze({ validateCatalog, newProfile, normalizeProfile, generate, setCollected, createId: id });
+  function setStepOrder(catalog, profile, stepIds) {
+    const plan = generate(catalog, { ...profile, stepOrder: [] });
+    if (plan.issues.length) throw new Error("先处理当前路线中的选择冲突，再调整步骤顺序。");
+    const error = stepOrderError(plan.steps, stepIds);
+    if (error) throw new Error(error);
+    profile.stepOrder = [...stepIds];
+  }
+
+  globalThis.JourneyCore = Object.freeze({ validateCatalog, newProfile, normalizeProfile, generate, setCollected, setStepOrder, createId: id });
 })();

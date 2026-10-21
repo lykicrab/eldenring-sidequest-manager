@@ -1,7 +1,7 @@
 /* Browser UI for NPC route planning. */
 (() => {
   "use strict";
-  let state = null, activeNpc = "", group = "base", tab = "choose", pending = false, nameCommand = "new";
+  let state = null, activeNpc = "", group = "base", tab = "choose", pending = false, nameCommand = "new", draggedStepId = "";
   const collapsedCollections = new Set();
   const $ = id => document.getElementById(id);
   const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n; };
@@ -112,6 +112,7 @@
     const next=steps.find(s=>!s.completed);
     $("planNext").textContent=state.plan.issues.length?"选择存在冲突，处理后生成计划。":next?`接下来：${next.npc} · ${next.title}`:steps.length?"当前计划已全部勾选完成。":"先选择想完成的 NPC 和分支。";
     const query=$("planSearch").value.trim().toLowerCase(),filter=$("planFilter").value;
+    const canReorder=!query&&filter==="all"&&!state.plan.issues.length;
     const open=new Set([...$("planStepList").querySelectorAll("details[open]")].map(n=>n.dataset.step));
     $("planStepList").replaceChildren();
     const doneIds=new Set(steps.filter(s=>s.completed).map(s=>s.id));
@@ -122,7 +123,8 @@
     steps.forEach((s,index)=>{
       if((filter==="pending"&&s.completed)||(filter==="done"&&!s.completed)||query&&!`${s.npc} ${s.title} ${s.region}`.toLowerCase().includes(query))return;
       count++;
-      const row=el("article","plan-step"+(s.completed?" completed":""));row.dataset.stepId=s.id;
+      const row=el("article","plan-step"+(s.completed?" completed":"")+(canReorder?" reorderable":""));row.dataset.stepId=s.id;
+      row.draggable=canReorder;row.title=canReorder?"按住并拖动此步骤，可将它往后调整": "清除搜索并显示全部步骤后可拖动调整顺序";
       const check=el("input");check.type="checkbox";check.checked=s.completed;check.dataset.planWrite="";check.id="step-"+s.id;check.setAttribute("aria-label",`第 ${index+1} 步：${s.title}`);
       check.addEventListener("change",()=>act("toggle",{stepId:s.id,completed:check.checked}));
       const copy=el("div","step-copy"),meta=el("div","step-meta",`${String(index+1).padStart(3,"0")}　${s.npc} · ${s.region}`);
@@ -144,6 +146,59 @@
     if(!count)$("planStepList").append(el("p","plan-empty",state.plan.issues.length?"请先处理上方选择冲突。":steps.length?"当前筛选没有步骤。":"在“选择 NPC”中添加人物，即可生成本周目的流程。"));
     setBusy();
   }
+  function clearDropMarkers(){
+    $("planStepList").querySelectorAll(".drop-before,.drop-after").forEach(row=>row.classList.remove("drop-before","drop-after"));
+  }
+  function stepOrderError(stepIds){
+    const positions=new Map(stepIds.map((stepId,index)=>[stepId,index]));
+    for(const step of state.plan.steps)for(const prerequisiteId of step.prerequisites||[]){
+      if(positions.get(prerequisiteId)>=positions.get(step.id)){
+        const prerequisite=state.plan.steps.find(value=>value.id===prerequisiteId);
+        return {stepId:step.id,prerequisiteId,message:`顺序碰壁：“${step.title}”需要先完成“${prerequisite?.title||prerequisiteId}”，不能把前置步骤挪到它后面。`};
+      }
+    }
+    return null;
+  }
+  function markBlockedRows(stepIds){
+    const list=$("planStepList"),rows=stepIds.map(id=>list.querySelector(`[data-step-id="${CSS.escape(id)}"]`)).filter(Boolean);
+    rows.forEach(row=>{row.classList.remove("step-blocked");void row.offsetWidth;row.classList.add("step-blocked");});
+    if(rows.length)setTimeout(()=>rows.forEach(row=>row.classList.remove("step-blocked")),700);
+  }
+  $("planStepList").addEventListener("dragstart",event=>{
+    const row=event.target.closest(".plan-step[draggable='true']");
+    if(!row||event.target.closest("input,label,button,a,summary")){event.preventDefault();return;}
+    draggedStepId=row.dataset.stepId;row.classList.add("dragging");
+    event.dataTransfer.effectAllowed="move";event.dataTransfer.setData("text/plain",draggedStepId);
+  });
+  $("planStepList").addEventListener("dragover",event=>{
+    if(!draggedStepId)return;
+    const target=event.target.closest(".plan-step[draggable='true']");
+    if(!target||target.dataset.stepId===draggedStepId)return;
+    event.preventDefault();event.dataTransfer.dropEffect="move";clearDropMarkers();
+    const after=event.clientY>target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;
+    target.classList.add(after?"drop-after":"drop-before");
+  });
+  $("planStepList").addEventListener("drop",event=>{
+    if(!draggedStepId)return;
+    const target=event.target.closest(".plan-step[draggable='true']");
+    if(!target||target.dataset.stepId===draggedStepId)return;
+    event.preventDefault();
+    const ordered=state.plan.steps.map(step=>step.id),from=ordered.indexOf(draggedStepId),targetIndex=ordered.indexOf(target.dataset.stepId);
+    const after=event.clientY>target.getBoundingClientRect().top+target.getBoundingClientRect().height/2;
+    let to=targetIndex+(after?1:0);
+    if(from<to)to--;
+    if(to===from)return;
+    if(to<from){clearDropMarkers();markBlockedRows([draggedStepId,target.dataset.stepId]);showToast("目前只能把步骤往后挪。拖到当前步骤下方再放开。");return;}
+    ordered.splice(from,1);ordered.splice(to,0,draggedStepId);
+    const blocked=stepOrderError(ordered);
+    clearDropMarkers();
+    if(blocked){markBlockedRows([draggedStepId,blocked.stepId,target.dataset.stepId]);showToast(blocked.message);return;}
+    draggedStepId="";act("reorder",{stepIds:ordered});
+  });
+  $("planStepList").addEventListener("dragend",()=>{
+    $("planStepList").querySelectorAll(".dragging").forEach(row=>row.classList.remove("dragging"));
+    clearDropMarkers();draggedStepId="";
+  });
   function showCollections(query){
     $("collectionSearch").value=query;$("collectionFilter").value="all";switchTab("collections");$("collectionList").scrollTop=0;
   }

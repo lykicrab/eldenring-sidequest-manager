@@ -102,29 +102,35 @@
       if (create) {
         profile.id = Core.createId();
         profile.name = readName(data);
-        if (command === "new") { profile.choices = {}; profile.completed = []; profile.collected = []; }
+        if (command === "new") { profile.choices = {}; profile.completed = []; profile.collected = []; profile.stepOrder = []; }
       } else if (command === "rename") profile.name = readName(data);
       else if (command === "choose") {
         const questId = String(data.questId || ""), optionId = String(data.optionId || "");
         const quest = catalog.quests.find(value => value.id === questId);
+        const previousOption = profile.choices[questId] || "skip";
         if (optionId === "skip") delete profile.choices[questId];
         else {
           if (!quest || !quest.options.some(option => option.id === optionId)) throw new Error("该 NPC 分支不存在。");
           profile.choices[questId] = optionId;
         }
+        if (previousOption !== optionId) profile.stepOrder = [];
       } else if (command === "selectGroup" || command === "clearGroup") {
         const category = String(data.category || "");
         if (!["base", "dlc"].includes(category)) throw new Error("分组无效。");
+        let routeChanged = false;
         for (const quest of catalog.quests.filter(value => value.category === category)) {
-          if (command === "selectGroup" && !Object.hasOwn(profile.choices, quest.id)) profile.choices[quest.id] = quest.defaultOption;
-          else if (command === "clearGroup") delete profile.choices[quest.id];
+          if (command === "selectGroup" && !Object.hasOwn(profile.choices, quest.id)) { profile.choices[quest.id] = quest.defaultOption; routeChanged = true; }
+          else if (command === "clearGroup" && Object.hasOwn(profile.choices, quest.id)) { delete profile.choices[quest.id]; routeChanged = true; }
         }
+        if (routeChanged) profile.stepOrder = [];
       } else if (command === "toggle") {
         const stepId = String(data.stepId || ""), plan = Core.generate(catalog, profile);
         if (plan.issues.length || !plan.steps.some(step => step.id === stepId)) throw new Error("该步骤不在当前有效计划中。");
         const completed = new Set(profile.completed);
         if (data.completed) completed.add(stepId); else completed.delete(stepId);
         profile.completed = [...completed];
+      } else if (command === "reorder") {
+        Core.setStepOrder(catalog, profile, data.stepIds);
       } else if (command === "collect") {
         Core.setCollected(catalog, profile, String(data.itemId || ""), Boolean(data.collected));
       } else throw new Error("未知的计划操作。");
@@ -133,6 +139,8 @@
       if (!nextPlan.issues.length) {
         const validSteps = new Set(nextPlan.steps.map(step => step.id));
         profile.completed = profile.completed.filter(stepId => validSteps.has(stepId));
+        if (profile.stepOrder.length && (profile.stepOrder.length !== validSteps.size || profile.stepOrder.some(stepId => !validSteps.has(stepId))))
+          profile.stepOrder = [];
       }
       profile.catalogVersion = catalog.version;
       profile.updatedAt = new Date().toISOString();
