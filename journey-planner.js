@@ -2,6 +2,7 @@
 (() => {
   "use strict";
   let state = null, activeNpc = "", group = "base", tab = "choose", pending = false, nameCommand = "new", draggedStepId = "";
+  let dragPointerY = 0, dragOverTime = 0, autoScrollFrame = 0;
   const collapsedCollections = new Set();
   const $ = id => document.getElementById(id);
   const el = (tag, cls, text) => { const n=document.createElement(tag); if(cls)n.className=cls; if(text!==undefined)n.textContent=text; return n; };
@@ -164,6 +165,45 @@
     rows.forEach(row=>{row.classList.remove("step-blocked");void row.offsetWidth;row.classList.add("step-blocked");});
     if(rows.length)setTimeout(()=>rows.forEach(row=>row.classList.remove("step-blocked")),700);
   }
+  function markPushedRows(stepIds){
+    const list=$("planStepList"),rows=stepIds.map(id=>list.querySelector(`[data-step-id="${CSS.escape(id)}"]`)).filter(Boolean);
+    rows.forEach(row=>row.classList.add("step-pushed"));
+    if(rows.length)setTimeout(()=>rows.forEach(row=>row.classList.remove("step-pushed")),600);
+  }
+  function dependsOn(stepId, prerequisiteId, visited=new Set()){
+    if(visited.has(stepId))return false;
+    visited.add(stepId);
+    const step=state.plan.steps.find(value=>value.id===stepId);
+    return (step?.prerequisites||[]).some(id=>id===prerequisiteId||dependsOn(id,prerequisiteId,visited));
+  }
+  function pushDependentsAfter(ordered, stepId){
+    const stepIndex=ordered.indexOf(stepId);
+    const pushed=ordered.slice(0,stepIndex).filter(id=>dependsOn(id,stepId));
+    if(!pushed.length)return [];
+    const pushedSet=new Set(pushed),remaining=ordered.filter(id=>!pushedSet.has(id)),newIndex=remaining.indexOf(stepId);
+    remaining.splice(newIndex+1,0,...pushed);
+    ordered.splice(0,ordered.length,...remaining);
+    return pushed;
+  }
+  function stopAutoScroll(){
+    if(autoScrollFrame)cancelAnimationFrame(autoScrollFrame);
+    autoScrollFrame=0;
+  }
+  function autoScrollWhileDragging(){
+    autoScrollFrame=0;
+    if(!draggedStepId||Date.now()-dragOverTime>120)return;
+    const list=$("planStepList"),bounds=list.getBoundingClientRect();
+    if(dragPointerY<bounds.top||dragPointerY>bounds.bottom)return;
+    const edge=64;
+    const delta=dragPointerY<bounds.top+edge
+      ?-Math.max(2,Math.ceil((bounds.top+edge-dragPointerY)/edge*14))
+      :dragPointerY>bounds.bottom-edge
+        ?Math.max(2,Math.ceil((dragPointerY-(bounds.bottom-edge))/edge*14)):0;
+    if(!delta)return;
+    const before=list.scrollTop;
+    list.scrollTop+=delta;
+    if(list.scrollTop!==before)autoScrollFrame=requestAnimationFrame(autoScrollWhileDragging);
+  }
   $("planStepList").addEventListener("dragstart",event=>{
     const row=event.target.closest(".plan-step[draggable='true']");
     if(!row||event.target.closest("input,label,button,a,summary")){event.preventDefault();return;}
@@ -172,6 +212,8 @@
   });
   $("planStepList").addEventListener("dragover",event=>{
     if(!draggedStepId)return;
+    dragPointerY=event.clientY;dragOverTime=Date.now();
+    if(!autoScrollFrame)autoScrollFrame=requestAnimationFrame(autoScrollWhileDragging);
     const target=event.target.closest(".plan-step[draggable='true']");
     if(!target||target.dataset.stepId===draggedStepId)return;
     event.preventDefault();event.dataTransfer.dropEffect="move";clearDropMarkers();
@@ -190,14 +232,15 @@
     if(to===from)return;
     if(to<from){clearDropMarkers();markBlockedRows([draggedStepId,target.dataset.stepId]);showToast("目前只能把步骤往后挪。拖到当前步骤下方再放开。");return;}
     ordered.splice(from,1);ordered.splice(to,0,draggedStepId);
+    const pushed=pushDependentsAfter(ordered,draggedStepId);
     const blocked=stepOrderError(ordered);
     clearDropMarkers();
     if(blocked){markBlockedRows([draggedStepId,blocked.stepId,target.dataset.stepId]);showToast(blocked.message);return;}
-    draggedStepId="";act("reorder",{stepIds:ordered});
+    draggedStepId="";stopAutoScroll();act("reorder",{stepIds:ordered});markPushedRows(pushed);
   });
   $("planStepList").addEventListener("dragend",()=>{
     $("planStepList").querySelectorAll(".dragging").forEach(row=>row.classList.remove("dragging"));
-    clearDropMarkers();draggedStepId="";
+    clearDropMarkers();draggedStepId="";stopAutoScroll();
   });
   function showCollections(query){
     $("collectionSearch").value=query;$("collectionFilter").value="all";switchTab("collections");$("collectionList").scrollTop=0;

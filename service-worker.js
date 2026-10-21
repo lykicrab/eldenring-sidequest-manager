@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "sidequest-manager-";
-const CACHE_NAME = `${CACHE_PREFIX}3c0d9378ce38eb34`;
+const CACHE_NAME = `${CACHE_PREFIX}79e7cb95f7fc9979`;
 const APP_FILES = [
   "./",
   "./index.html",
