@@ -1,14 +1,14 @@
 "use strict";
 
 const CACHE_PREFIX = "sidequest-manager-";
-const CACHE_NAME = `${CACHE_PREFIX}79e7cb95f7fc9979`;
+const CACHE_NAME = `${CACHE_PREFIX}f2801132e5a82536`;
 const APP_FILES = [
   "./",
   "./index.html",
   "./journey_catalog.js",
   "./journey-core.js",
   "./app.js",
-  "./journey-planner.js"
+  "./styles.css"
 ];
 const scopeRoot = new URL(self.registration.scope);
 const appUrls = APP_FILES.map(path => new URL(path, scopeRoot).href);
