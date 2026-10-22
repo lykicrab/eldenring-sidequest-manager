@@ -3,105 +3,50 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>支线管理</title>
-  <style>
-    :root { color-scheme:light; --ink:#292b2e; --muted:#70757b; --line:#dedfe2; --blue:#0969b5; --blue-dark:#075c9f; }
-    * { box-sizing:border-box; }
-    html,body { margin:0; min-height:100%; font-family:"Microsoft YaHei UI","Noto Sans CJK SC",sans-serif; color:var(--ink); }
-    body { background:#fff; overflow:auto; }
-    button,input,select { font:inherit; color:inherit; }
-    .view { display:flex; flex-direction:column; min-height:100vh; min-width:0; }
-    .page-head { flex:0 0 auto; min-height:104px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px 28px; }
-    .heading { display:flex; align-items:center; gap:18px; min-width:0; }
-    .heading-icon { width:48px; height:48px; display:grid; place-items:center; font-size:35px; flex-shrink:0; }
-    h1 { margin:0; font-size:clamp(24px,2.1vw,34px); font-weight:650; letter-spacing:1px; }
-    .journey-detail-meta { margin-top:6px; color:var(--muted); font-size:12px; line-height:1.5; }
-    .journey-search { display:flex; align-items:center; gap:9px; padding:0 12px; height:48px; flex:0 0 48px; border-bottom:1px solid var(--line); }
-    .journey-search input { width:100%; height:100%; border:0; outline:0; background:transparent; }
-    .toast { position:fixed; left:50%; bottom:24px; transform:translateX(-50%); max-width:90vw; padding:12px 18px; border-radius:8px; background:#253344; color:white; font-size:13px; line-height:1.7; z-index:100; box-shadow:0 4px 20px #0002; }
-    .toast[hidden] { display:none; }
-    .plan-offline { color:#4e7562; background:#eef6f1; padding:8px 12px; border-radius:7px; font-size:12px; white-space:nowrap; }
-    .offline-status { color:#68727d; background:#f3f5f7; padding:8px 12px; border-radius:7px; font-size:12px; white-space:nowrap; }
-    .offline-status.ready { color:#3c7156; background:#eaf5ee; }
-    #journeyView { min-height:0; }
-    .plan-profile-bar { margin:0 24px 12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
-    .plan-profile-bar select { width:220px; max-width:35%; }
-    .plan-profile-bar select,.plan-profile-bar button,.plan-button,.npc-groups button,.npc-bulk button,.plan-filters input,.plan-filters select { min-height:34px; padding:6px 10px; border:1px solid #d8dce1; border-radius:6px; background:white; color:inherit; font:inherit; }
-    #planSaveStatus { margin-left:auto; font-size:12px; color:#6b7771; }
-    .plan-tabs { display:flex; margin:0 24px 10px; border-bottom:1px solid var(--line); gap:8px; }
-    .plan-tabs button { border:0; background:none; padding:10px 15px; color:#737b87; border-bottom:3px solid transparent; }
-    .plan-tabs button.active { color:var(--blue); border-color:var(--blue); font-weight:650; }
-    .planner-layout { display:grid; grid-template-columns:minmax(245px,.85fr) minmax(340px,1.6fr); gap:16px; margin:0 24px; height:calc(100vh - 310px); min-height:480px; }
-    .planner-layout[hidden],.plan-checklist[hidden],.plan-issues[hidden],.plan-load-warning[hidden] { display:none; }
-    .collection-list { flex:1; min-height:0; overflow:auto; padding:0 16px 16px; }
-    .collection-group { margin:16px 0 0; border:1px solid var(--line); border-radius:8px; overflow:hidden; }
-    .collection-group>.collection-heading { display:block; cursor:pointer; list-style:none; }
-    .collection-group>.collection-heading::-webkit-details-marker { display:none; }
-    .collection-group>.collection-heading::after { content:"收起"; float:right; color:var(--blue); font-size:12px; }
-    .collection-group:not([open])>.collection-heading::after { content:"展开"; }
-    .collection-heading { padding:13px 14px; background:#fafcfd; }.collection-heading h3 { margin:0 0 6px; font-size:15px; }.collection-heading p { margin:6px 0 0; font-size:12px; color:var(--muted); line-height:1.7; }.collection-heading .collection-count { color:#507862; font-weight:600; }
-    .collection-table-wrap { overflow-x:auto; }.collection-table { width:100%; min-width:720px; border-collapse:collapse; font-size:12px; text-align:left; }.collection-table th { padding:10px 12px; background:#f5f7f9; color:#6e7886; font-weight:500; }.collection-table td { padding:12px; border-top:1px solid #edf0f2; vertical-align:top; line-height:1.7; }.collection-table th:first-child { width:48px; }.collection-table th:nth-child(2) { width:23%; }.collection-table th:nth-child(3) { width:24%; }.collection-table input { width:18px; height:18px; accent-color:#568772; cursor:pointer; }.collection-table label { cursor:pointer; }.collection-table tr.collected { background:#f3f8f5; }.collection-table tr.collected label { color:#648474; }.collection-table .step-warning { margin-top:5px; }.collection-links { display:flex; flex-wrap:wrap; gap:6px; margin-top:9px; }.collection-source { font-size:11px; color:var(--muted); overflow-wrap:anywhere; margin:10px 14px; }.collection-source p { margin:5px 0; }
-    .step-collection-link { margin-top:8px; color:var(--blue-dark); background:#f2f7fb; border:1px solid #d8e5ed; border-radius:5px; padding:5px 9px; font-size:12px; cursor:pointer; }
-    .collection-table caption { position:absolute; width:1px; height:1px; padding:0; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
-    .npc-directory { display:flex; flex-direction:column; border:1px solid var(--line); border-radius:10px; min-height:0; overflow:hidden; }
-    .npc-groups { display:flex; gap:5px; padding:10px; border-bottom:1px solid var(--line); }
-    .npc-groups button { flex:1; font-size:12px; }.npc-groups button.active { background:#edf5fc; color:var(--blue); border-color:#b6d1e8; }
-    .npc-bulk { padding:8px 10px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; border-bottom:1px solid var(--line); }
-    .npc-bulk button { font-size:11px; min-height:28px; padding:4px 7px; }.npc-bulk span { font-size:11px; color:var(--muted); }
-    .npc-list { overflow:auto; min-height:0; flex:1; }
-    .npc-list-row { width:100%; display:flex; align-items:center; gap:9px; text-align:left; padding:12px; background:white; border:0; border-bottom:1px solid #eff0f2; color:inherit; }
-    .npc-list-row.active { background:#eff6fc; box-shadow:inset 3px 0 var(--blue); }.npc-choice-badge { color:#a2abb3; font-size:18px; }.npc-choice-badge.selected { color:#4e8870; }
-    .npc-list-copy { display:flex; flex-direction:column; gap:4px; min-width:0; }.npc-list-copy strong { font-weight:550; font-size:14px; }.npc-list-copy>span { font-size:11px; color:var(--muted); }
-    .npc-detail { padding:20px; border:1px solid var(--line); border-radius:10px; overflow:auto; min-height:0; }.npc-detail h2 { font-size:22px; margin:0 0 8px; }
-    .npc-summary { color:var(--muted); line-height:1.8; font-size:13px; margin:0 0 18px; white-space:pre-line; }
-    .step-instructions { margin:8px 0 0; color:#566474; font-size:13px; line-height:1.85; white-space:pre-line; overflow-wrap:anywhere; }
-    .npc-option { display:flex; align-items:flex-start; gap:11px; padding:13px 14px; margin:9px 0; border:1px solid #dfe3e8; border-radius:8px; cursor:pointer; }
-    .npc-option.selected { border-color:#85b4d8; background:#f2f8fd; }.npc-option input { width:17px; height:17px; flex:0 0 auto; accent-color:var(--blue); margin-top:2px; }
-    .npc-option>span { display:flex; flex-direction:column; gap:6px; }.npc-option strong { font-size:14px; font-weight:550; }.npc-option span span { font-size:12px; line-height:1.7; color:var(--muted); }
-    .npc-dependency { font-size:12px; line-height:1.7; margin:16px 0; padding:12px; background:#faf7ef; border-radius:7px; }.npc-dependency p { margin:7px 0 0; }
-    .npc-preview,.npc-source { margin-top:18px; font-size:12px; line-height:1.8; overflow-wrap:anywhere; }.npc-preview li { padding-bottom:8px; }.npc-source { color:var(--muted); }
-    .plan-issues { margin:0 24px 10px; padding:12px 15px; border:1px solid #e5cc9e; border-radius:8px; background:#fffaf1; max-height:190px; overflow:auto; font-size:12px; flex-shrink:0; }
-    .plan-issue { border-top:1px solid #eddfc6; margin-top:9px; padding-top:2px; }.plan-issue p { margin:8px 0; line-height:1.6; }.plan-fix { background:white; border:1px solid #d4c3a7; padding:5px 9px; border-radius:5px; font-size:11px; margin:0 7px 6px 0; }
-    .plan-checklist { display:flex; flex-direction:column; height:calc(100vh - 300px); min-height:480px; margin:0 24px; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
-    .plan-summary { padding:14px 16px; display:grid; grid-template-columns:1fr auto; align-items:center; gap:8px; background:#fafcfd; border-bottom:1px solid var(--line); }.plan-summary strong { font-size:14px; }.plan-summary progress { display:block; margin-top:8px; width:min(400px,100%); height:7px; accent-color:#5d927d; }.plan-summary p { grid-column:1/-1; margin:3px 0 0; color:var(--muted); font-size:12px; }
-    .plan-filters { display:flex; align-items:center; gap:10px; padding:10px 16px; border-bottom:1px solid var(--line); }.plan-filters input { flex:1; min-width:0; }.plan-filters select { width:140px; }.plan-reorder-note { color:#7b8490; font-size:11px; white-space:nowrap; }
-    .plan-step-list { overflow:auto; overscroll-behavior:contain; flex:1; min-height:0; padding:0 16px; }.plan-step { display:flex; align-items:flex-start; gap:12px; padding:15px 2px; border-bottom:1px solid #eef0f2; }.plan-step.reorderable { cursor:grab; }.plan-step.reorderable::before { content:"⠿"; flex:0 0 12px; color:#a0a8b1; font-size:17px; line-height:24px; user-select:none; }.plan-step.reorderable:active,.plan-step.dragging { cursor:grabbing; }.plan-step.dragging { opacity:.45; }.plan-step.drop-before { box-shadow:inset 0 3px #3486c2; }.plan-step.drop-after { box-shadow:inset 0 -3px #3486c2; }.plan-step.step-blocked { background:#fff1ef; outline:1px solid #d95f54; animation:step-blocked 360ms ease-in-out 2; }.plan-step.step-pushed { background:#eef6fc; animation:step-pushed 500ms ease-out; }.plan-step>input { width:20px; height:20px; margin-top:17px; flex:0 0 auto; accent-color:#568772; cursor:pointer; }.step-copy { flex:1; min-width:0; }.step-meta { color:#8a929d; font-size:11px; margin-bottom:6px; }.step-title { font-size:14px; line-height:1.65; cursor:pointer; }.completed .step-title { color:#89908f; text-decoration:line-through; }.step-warning { font-size:12px; color:#a77626; line-height:1.65; margin:6px 0 0; }.step-detail { font-size:12px; color:#697582; margin-top:7px; line-height:1.8; }.step-detail summary { cursor:pointer; }.step-detail p { margin:5px 0; }.step-deps { color:#8a929d; }.quest-complete { display:inline-block; margin-top:10px; padding:6px 11px; border:1px solid #83b99b; border-radius:6px; background:#e6f4ea; color:#22633a; font-size:13px; font-weight:700; }
-    @keyframes step-blocked { 0%,100% { transform:translateX(0); } 25% { transform:translateX(-7px); } 50% { transform:translateX(7px); } 75% { transform:translateX(-4px); } }
-    @keyframes step-pushed { from { transform:translateY(8px); } to { transform:translateY(0); } }
-    .plan-empty { padding:22px 16px; color:var(--muted); font-size:13px; line-height:1.8; }.plan-load-warning { margin:0 24px 10px; padding:8px; font-size:12px; color:#9d702e; }
-    .plan-data-note { margin:10px 24px 12px; flex-shrink:0; color:var(--muted); font-size:11px; line-height:1.7; }.plan-data-note p { margin:6px 0; }.plan-data-note[open] { max-height:130px; overflow:auto; }
-    #planNameDialog { border:1px solid #d5dbe1; border-radius:12px; padding:24px; width:420px; color:inherit; box-shadow:0 12px 60px #0003; }#planNameDialog::backdrop { background:#17243266; }#planNameDialog h2 { font-size:18px; margin:0 0 16px; }#planName { display:block; width:100%; height:38px; border:1px solid #bac5d0; border-radius:5px; padding:8px; } .plan-dialog-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
-    [data-plan-write]:disabled { opacity:.5; cursor:wait; }button { cursor:pointer; }
-    @media(max-width:1100px) { .planner-layout { grid-template-columns:minmax(220px,.8fr) minmax(300px,1.4fr); }.npc-detail { padding:15px; }.plan-offline { font-size:11px; }#planSaveStatus { width:100%; margin-left:0; } }
-    @media(max-width:760px) { .page-head { align-items:flex-start; padding:18px 16px; flex-wrap:wrap; }.heading { gap:10px; }.heading-icon { width:38px; height:38px; font-size:29px; }.plan-profile-bar,.plan-tabs { margin-left:14px; margin-right:14px; }.plan-profile-bar select { width:100%; max-width:none; }.plan-profile-bar button { flex:1; }.plan-tabs { gap:0; }.plan-tabs button { flex:1; padding:10px 5px; font-size:12px; }.planner-layout { display:flex; flex-direction:column; height:auto; min-height:0; margin:0 14px; }.npc-directory { min-height:390px; max-height:52vh; }.npc-list { max-height:34vh; }.npc-detail { min-height:300px; overflow:visible; }.plan-checklist { height:72vh; min-height:430px; margin:0 14px; }.plan-issues { margin-left:14px; margin-right:14px; }.plan-data-note { margin-left:14px; margin-right:14px; }.plan-filters { flex-wrap:wrap; }.plan-filters select { width:100%; }.plan-reorder-note { white-space:normal; }.collection-list { padding:0 10px 12px; }.plan-summary { grid-template-columns:1fr; }.plan-summary button { justify-self:start; } }
-  </style>
+  <title>支线进度 · 支线管理</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="journey_catalog.js"></script>
+  <script defer src="journey-core.js"></script>
+  <script defer src="app.js"></script>
 </head>
 <body>
-        <section id="journeyView" class="view active">
-          <header class="page-head"><div class="heading"><span class="heading-icon">📖</span><div><h1>支线管理</h1><div class="journey-detail-meta">艾尔登法环 · 本体与黄金树幽影 · 选择 NPC，规划这一周目的支线</div></div></div><span class="plan-offline">浏览器本地保存 · 手动勾选</span><span id="offlineStatus" class="offline-status" role="status" aria-live="polite">正在准备离线缓存…</span></header>
-          <div class="plan-profile-bar"><label for="planProfile">我的周目</label><select id="planProfile" data-plan-write aria-label="周目计划"></select><button id="planNew" data-plan-write>新建</button><button id="planClone" data-plan-write>复制当前</button><button id="planRename" data-plan-write>改名</button><button id="planImport">导入计划</button><button id="planExport">导出备份</button><input id="planImportFile" type="file" accept=".json,application/json" multiple hidden><span id="planSaveStatus" role="status" aria-live="polite"></span></div>
-          <div class="plan-tabs" role="tablist" aria-label="规划步骤"><button data-plan-tab="choose" role="tab" aria-controls="npcChooser">① 选择 NPC</button><button data-plan-tab="plan" role="tab" aria-controls="planChecklist">② <span id="planTabCount">顺序计划</span></button><button data-plan-tab="collections" role="tab" aria-controls="planCollections">③ <span id="collectionTabCount">收集表</span></button></div>
-          <p id="planLoadWarning" class="plan-load-warning" hidden></p><section id="planIssues" class="plan-issues" aria-live="polite" hidden></section>
-          <div id="npcChooser" class="planner-layout" role="tabpanel">
-            <section class="npc-directory" aria-label="NPC 目录"><div class="npc-groups"><button data-npc-group="base" class="active">本体</button><button data-npc-group="dlc">黄金树幽影</button></div><label class="journey-search"><span>⌕</span><input id="npcSearch" type="search" placeholder="搜索 NPC 或支线" aria-label="搜索 NPC"></label><div class="npc-bulk"><button id="selectNpcGroup" data-plan-write>添加本组全部</button><button id="clearNpcGroup" data-plan-write>移除本组</button><span id="npcCount"></span></div><div id="npcList" class="npc-list"></div></section>
-            <section id="npcDetail" class="npc-detail" aria-label="分支与影响"><p class="plan-empty">正在加载人物和支线分支…</p></section>
-          </div>
-          <div id="planChecklist" class="plan-checklist" role="tabpanel" hidden>
-            <div class="plan-summary"><div><strong id="planProgress">尚未选择 NPC</strong><progress id="planProgressBar" value="0" max="1"></progress></div><button id="planJump" class="plan-button">跳到下一步 ↓</button><p id="planNext"></p></div>
-            <div class="plan-filters"><input id="planSearch" type="search" placeholder="搜索 NPC、地点或步骤" aria-label="搜索计划步骤"><select id="planFilter" aria-label="完成状态筛选"><option value="all">全部步骤</option><option value="pending">只看未完成</option><option value="done">只看已完成</option></select><span class="plan-reorder-note">抓住步骤前的 ⠿ 往后拖；相关后续步骤会顺延</span></div><p id="planProgressWarning" class="plan-load-warning" hidden></p><div id="planStepList" class="plan-step-list"></div>
-          </div>
-          <div id="planCollections" class="plan-checklist" role="tabpanel" hidden>
-            <div class="plan-summary"><div><strong id="collectionProgress">当前计划的支线道具</strong></div><p>勾选表示本周目已经取得，交付后无需取消。收集与任务步骤分别保存；修改分支会保留已收集记录。</p></div>
-            <div class="plan-filters"><input id="collectionSearch" type="search" placeholder="搜索道具、NPC、地点或取得方法" aria-label="搜索支线收集表"><select id="collectionFilter" aria-label="收集状态筛选"><option value="all">全部来源</option><option value="pending">只看未收集</option><option value="done">只看已收集</option></select></div>
-            <div id="collectionList" class="collection-list"></div>
-          </div>
-          <details class="plan-data-note"><summary>数据范围与使用说明 · 每次选择和勾选自动保存</summary><p id="planDataNotice"></p><p>周目保存在当前浏览器中；清理浏览数据或换设备前，请用“导出备份”保存，再通过“导入计划”恢复。也可以导入旧版支线管理的 plans 周目 JSON。新建计划从空白开始；复制保留选择、步骤勾选和道具收集记录。修改分支会保留共同步骤，移除已不属于新路线的步骤完成记录；道具收集记录仍保留在本周目。计划不会检测游戏进度。</p></details>
-        </section>
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#next" aria-label="支线管理首页"><span class="brand-mark" aria-hidden="true">✦</span><span>支线管理<small>艾尔登法环 · 本体与黄金树幽影</small></span></a>
+      <span id="offlineStatus" class="offline-status" role="status">离线缓存准备中</span>
+    </div>
+  </header>
+  <main class="page">
+    <p class="intro">完成一步，接着下一步。误勾时可到 NPC 个人进度中修改。</p>
+    <div class="local-profile-bar"><label for="localProfile">当前周目</label><select id="localProfile" aria-label="当前周目"></select><button id="newProfile" type="button" class="secondary-button">新建周目</button><button id="cloneProfile" type="button" class="secondary-button" disabled>复制</button><button id="renameProfile" type="button" class="secondary-button" disabled>改名</button><button id="importProfile" type="button" class="secondary-button">导入周目备份</button><button id="exportProfile" type="button" class="secondary-button" disabled>导出周目备份</button><input id="profileFile" type="file" accept=".json,application/json" multiple hidden><span id="localSaveStatus" role="status" aria-live="polite" hidden></span></div>
+    <p id="profileMessage" class="profile-message" role="status" hidden></p>
+    <nav class="view-tabs" aria-label="查看内容">
+      <button type="button" data-view="next" class="active" aria-current="page">支线进度 <span id="nextCount"></span></button>
+      <button type="button" data-view="npc">NPC 个人进度</button>
+      <button type="button" data-view="collections">收集表</button>
+    </nav>
+    <section id="nextView" aria-label="各支线的下一步">
+      <div id="progressWarning" class="step-warning" hidden></div>
+      <section class="quests-section" aria-label="支线列表">
+        <div class="quests-heading"><label class="search-field"><span aria-hidden="true">⌕</span><input id="questSearch" type="search" placeholder="搜索 NPC、地点或步骤" aria-label="搜索 NPC、地点或步骤"></label></div>
+        <div class="filter-row"><div class="category-tabs" role="group" aria-label="游戏范围"><button type="button" data-category="all" class="active" aria-pressed="true">全部 <span id="allCount"></span></button><button type="button" data-category="base" aria-pressed="false">本体 <span id="baseCount"></span></button><button type="button" data-category="dlc" aria-pressed="false">黄金树幽影 <span id="dlcCount"></span></button></div><span class="filter-note">全部列表且清空搜索时，可拖动卡片排序</span></div>
+        <div id="questGrid" class="quest-grid"></div>
+        <details id="finishedSection" class="finished-section"><summary><span>已完成的支线</span><span id="finishedCount" class="count-badge"></span></summary><div id="finishedList" class="finished-list"></div></details>
+      </section>
+    </section>
+    <section id="npcView" class="aux-view" hidden aria-labelledby="npcTitle"><div class="aux-heading"><div><p class="eyebrow">查看与修改</p><h2 id="npcTitle">NPC 个人进度</h2><p>选择支线结局，或在全部步骤中修改完成记录。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><label class="npc-picker-label" for="npcPicker">查看 NPC<select id="npcPicker"></select></label><div id="choiceConflict" class="choice-conflict" role="alert" hidden></div><section id="npcDetail" class="npc-personal"></section></section>
+    <section id="collectionsView" class="aux-view" hidden aria-labelledby="collectionTitle"><div class="aux-heading"><div><p class="eyebrow">辅助查看</p><h2 id="collectionTitle">支线收集表</h2><p>勾选表示本周目已经取得，交付后无需取消。收集与任务步骤分别保存。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><div id="collectionList"></div></section>
+    <p id="progressStatus" class="sr-only" role="status" aria-live="polite"></p>
+    <footer class="page-footer"><span>支线管理 · 进度保存在当前浏览器</span><span>任务说明来自现有支线表</span></footer>
+  </main>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
-  <dialog id="planNameDialog" aria-labelledby="planNameHeading"><form id="planNameForm"><h2 id="planNameHeading">新建周目计划</h2><label for="planName">计划名称</label><input id="planName" maxlength="60" required autocomplete="off"><div class="plan-dialog-actions"><button id="cancelPlanName" type="button" class="plan-button">取消</button><button type="submit" class="plan-button">保存</button></div></form></dialog>
-  <script src="journey_catalog.js"></script>
-  <script src="journey-core.js"></script>
-  <script src="app.js"></script>
-  <script src="journey-planner.js"></script>
+  <dialog id="profileNameDialog" aria-labelledby="profileNameTitle"><form id="profileNameForm">
+    <h2 id="profileNameTitle">新建周目</h2>
+    <label class="profile-name-label" for="profileName">周目名称<input id="profileName" maxlength="60" required autocomplete="off"></label>
+    <fieldset id="newProfileRoutes"><legend>初始安排</legend><label><input id="newProfileBase" type="checkbox" checked>本体支线</label><label><input id="newProfileDlc" type="checkbox">黄金树幽影</label><p>之后可在 NPC 个人进度中调整分支与结局。</p></fieldset>
+    <p id="profileNameError" class="step-warning" role="alert" hidden></p>
+    <div class="profile-dialog-actions"><button id="cancelProfileName" type="button" class="secondary-button">取消</button><button type="submit" class="secondary-button primary-button">保存</button></div>
+  </form></dialog>
+  <dialog id="prerequisiteDialog" aria-labelledby="prerequisiteTitle" aria-describedby="prerequisiteTarget"><div class="prerequisite-dialog-heading"><h2 id="prerequisiteTitle">未完成的前置条件</h2><button id="closePrerequisites" type="button" class="dialog-close" aria-label="关闭前置条件">×</button></div><p id="prerequisiteTarget"></p><div id="prerequisiteList"></div><p class="condition-note">若共同条件已在游戏中达成，可在这里勾选确认。</p></dialog>
 </body>
 </html>

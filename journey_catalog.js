@@ -1,5 +1,5 @@
 window.JOURNEY_CATALOG = {
-  "version": 1,
+  "version": 3,
   "notice": "本体依据提供的全支线整理稿；DLC 参考同作者《艾尔登法环DLC支线攻略》，已补充具体操作、交叉分支与名称校对。此表记录玩家自己的进度，不能判断当前存档已错过的事件；成王之路及无缝联机差异需结合游戏内状态核对。",
   "quests": [
     {
@@ -1052,14 +1052,29 @@ window.JOURNEY_CATALOG = {
           "warning": ""
         },
         {
-          "id": "ranni.blade",
-          "title": "取得猎杀指头刀，交给菈妮，领取卡利亚颠倒像",
-          "detail": "拉塔恩战后从宁姆格福雾林附近陨石坑下到诺克隆恩，沿祖灵森林通往黑夜神域，在巨大遗骸下方宝箱取得猎杀指头刀。交刀前完成所选赛尔维斯目标；然后回菈妮魔法师塔顶层交刀，领取卡利亚颠倒像。",
-          "order": 460,
+          "id": "ranni.findBlade",
+          "title": "在黑夜神域宝箱取得猎杀指头刀",
+          "detail": "拉塔恩战后从雾林附近陨石坑下到诺克隆恩，沿祖灵森林通往黑夜神域，在巨大遗骸下方宝箱取得猎杀指头刀。拾取与交付分开记录；取得后可以先留在背包，交刀前仍要核对赛尔维斯相关目标。",
+          "order": 450,
           "region": "诺克隆恩 / 黑夜神域",
           "options": [],
           "needs": [
             "story.radahn"
+          ],
+          "after": [
+            "ranni.join"
+          ],
+          "warning": ""
+        },
+        {
+          "id": "ranni.blade",
+          "title": "把猎杀指头刀交给菈妮，领取卡利亚颠倒像",
+          "detail": "先完成当前选择的赛尔维斯药水、傀儡和魔力对蝎护符目标，再回菈妮魔法师塔顶层交付猎杀指头刀，领取卡利亚颠倒像。此处记录交付，不是仅把刀拿在背包。",
+          "order": 460,
+          "region": "菈妮魔法师塔",
+          "options": [],
+          "needs": [
+            "ranni.findBlade"
           ],
           "after": [
             "ranni.renna",
@@ -1082,7 +1097,11 @@ window.JOURNEY_CATALOG = {
             "ranni.join",
             "ranni.blade"
           ],
-          "warning": ""
+          "warning": "",
+          "optionalFor": [
+            "complete",
+            "final"
+          ]
         },
         {
           "id": "ranni.mini",
@@ -1098,8 +1117,7 @@ window.JOURNEY_CATALOG = {
           "after": [
             "ranni.renna",
             "ranni.join",
-            "ranni.blade",
-            "ranni.cursemark"
+            "ranni.blade"
           ],
           "warning": ""
         },
@@ -1118,7 +1136,6 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "ranni.blade",
-            "ranni.cursemark",
             "ranni.mini"
           ],
           "warning": ""
@@ -1138,18 +1155,33 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "ranni.blade",
-            "ranni.cursemark",
             "ranni.mini",
             "ranni.shadow"
           ],
           "warning": ""
         },
         {
-          "id": "ranni.astel",
-          "title": "坐棺材抵达并击败黑暗弃子艾丝缇，前往月光祭坛",
-          "detail": "横穿腐败湖抵达大回廊，走到底部瀑布旁，与石棺互动进入黑暗弃子艾丝缇战场。击败首领后，持暗月戒指通过后方封印，乘升降机上月光祭坛。",
-          "order": 485,
+          "id": "ranni.defeatAstel",
+          "title": "坐棺材抵达并击败黑暗弃子艾丝缇",
+          "detail": "横穿腐败湖抵达大回廊，走到底部瀑布旁，与石棺互动进入黑暗弃子艾丝缇战场并击败首领。首领可以先打；通过战场后方封印才需要暗月戒指。",
+          "order": 482,
           "region": "腐败湖 / 大回廊",
+          "options": [
+            "complete",
+            "final"
+          ],
+          "needs": [],
+          "after": [
+            "ranni.mini"
+          ],
+          "warning": ""
+        },
+        {
+          "id": "ranni.astel",
+          "title": "持暗月戒指通过封印，乘升降机前往月光祭坛",
+          "detail": "击败黑暗弃子艾丝缇后，持暗月戒指通过首领战场后方封印，乘升降机上月光祭坛。若封印仍在，先回蕾娜菈身边的宝箱取戒指。",
+          "order": 485,
+          "region": "艾丝缇战场后方 / 月光祭坛",
           "options": [
             "complete",
             "final"
@@ -1159,10 +1191,10 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "ranni.blade",
-            "ranni.cursemark",
             "ranni.mini",
             "ranni.shadow",
-            "ranni.ring"
+            "ranni.ring",
+            "ranni.defeatAstel"
           ],
           "warning": ""
         },
@@ -1181,11 +1213,11 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "ranni.blade",
-            "ranni.cursemark",
             "ranni.mini",
             "ranni.shadow",
             "ranni.ring",
-            "ranni.astel"
+            "ranni.astel",
+            "ranni.defeatAstel"
           ],
           "warning": ""
         },
@@ -1205,12 +1237,12 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "ranni.blade",
-            "ranni.cursemark",
             "ranni.mini",
             "ranni.shadow",
             "ranni.ring",
             "ranni.astel",
-            "ranni.marry"
+            "ranni.marry",
+            "ranni.defeatAstel"
           ],
           "warning": ""
         }
@@ -2436,7 +2468,11 @@ window.JOURNEY_CATALOG = {
           "after": [
             "d.deathroot"
           ],
-          "warning": ""
+          "warning": "",
+          "completionNeeds": [
+            "fia.hug",
+            "d.deathroot"
+          ]
         },
         {
           "id": "d.armor",
@@ -2453,11 +2489,28 @@ window.JOURNEY_CATALOG = {
           "warning": ""
         },
         {
+          "id": "d.giveArmor",
+          "title": "把完整孪生套装交给 D 的弟弟",
+          "detail": "到诺克隆恩希芙拉导水桥、英雄石像鬼首领房前，找坐着的 D 的弟弟，交出完整孪生套装。这里可以先交付，不必等菲雅完成死龙事件；菲雅完成后再回访死王子宝座。",
+          "order": 540,
+          "region": "希芙拉导水桥",
+          "options": [
+            "complete"
+          ],
+          "needs": [],
+          "after": [
+            "d.deathroot",
+            "d.dagger",
+            "d.armor"
+          ],
+          "warning": ""
+        },
+        {
           "id": "d.brother",
-          "title": "把孪生套装交给 D 的弟弟，在菲雅完成后回访死王子宝座",
-          "detail": "到诺克隆恩希芙拉导水桥、英雄石像鬼首领房前，找坐着的 D 的弟弟，交出完整孪生套装。菲雅已完成死龙并留下修复卢恩后，再回深根底层死王子宝座查看弟弟的复仇后续。",
+          "title": "菲雅完成死龙事件后，回访死王子宝座的 D 的弟弟",
+          "detail": "菲雅已完成死龙并留下修复卢恩后，回深根底层死王子宝座查看 D 的弟弟的复仇后续。套装在导水桥交过即可，不必重新交付。",
           "order": 870,
-          "region": "希芙拉导水桥 / 死王子宝座",
+          "region": "死王子宝座",
           "options": [
             "complete"
           ],
@@ -2467,7 +2520,8 @@ window.JOURNEY_CATALOG = {
           "after": [
             "d.deathroot",
             "d.dagger",
-            "d.armor"
+            "d.armor",
+            "d.giveArmor"
           ],
           "warning": ""
         },
@@ -2485,7 +2539,8 @@ window.JOURNEY_CATALOG = {
             "d.deathroot",
             "d.dagger",
             "d.armor",
-            "d.brother"
+            "d.brother",
+            "d.giveArmor"
           ],
           "warning": ""
         }
@@ -2557,7 +2612,11 @@ window.JOURNEY_CATALOG = {
           "after": [
             "fia.hug"
           ],
-          "warning": ""
+          "warning": "",
+          "completionNeeds": [
+            "fia.hug",
+            "d.deathroot"
+          ]
         },
         {
           "id": "fia.depths",
@@ -3966,7 +4025,10 @@ window.JOURNEY_CATALOG = {
           "after": [
             "gowry.request"
           ],
-          "warning": ""
+          "warning": "",
+          "completionNeeds": [
+            "gowry.request"
+          ]
         },
         {
           "id": "gowry.shop",
@@ -4038,7 +4100,10 @@ window.JOURNEY_CATALOG = {
           "after": [
             "gowry.repair"
           ],
-          "warning": ""
+          "warning": "",
+          "completionNeeds": [
+            "gowry.request"
+          ]
         },
         {
           "id": "millicent.church",
@@ -5119,11 +5184,24 @@ window.JOURNEY_CATALOG = {
           "warning": ""
         },
         {
+          "id": "ansbach.findScroll",
+          "title": "在保藏库四楼外侧房间拾取秘密仪式卷轴",
+          "detail": "从保藏库（四楼）走向外侧道路，沿外侧楼梯下到较低层房间，在桌上拾取秘密仪式卷轴。可以先收进背包；若还要做弗蕾亚线，交给安帕赫前先听她的疑问并向老兵报告。",
+          "order": 1325,
+          "region": "保藏库（四楼）外侧房间",
+          "options": [],
+          "needs": [
+            "story.charm"
+          ],
+          "after": [],
+          "warning": ""
+        },
+        {
           "id": "ansbach.scroll",
           "order": 1330,
-          "region": "保藏库（四楼）外侧 → 一楼侧室",
-          "title": "捡秘密仪式卷轴，先报告弗蕾亚再交给安帕赫",
-          "detail": "从“保藏库（四楼）”走向外侧道路，沿外侧楼梯下到较低层的房间，在桌上捡“秘密仪式卷轴”。回“保藏库（一楼）”附近老兵侧室交付并谈完研究结果。如果选了弗蕾亚线，先完成七楼询问和一楼“告知弗蕾亚的近况”，再交卷轴。",
+          "region": "保藏库（一楼）侧室",
+          "title": "先报告弗蕾亚近况，再把秘密仪式卷轴交给安帕赫",
+          "detail": "回保藏库（一楼）附近老兵侧室。若本周目安排了弗蕾亚线，先完成七楼询问及一楼的“告知弗蕾亚的近况”，再交付秘密仪式卷轴并听完研究结果；未安排弗蕾亚线时可直接交付。",
           "options": [],
           "needs": [
             "story.charm"
@@ -5131,7 +5209,8 @@ window.JOURNEY_CATALOG = {
           "after": [
             "ansbach.cross",
             "ansbach.broken",
-            "freyja.report"
+            "freyja.report",
+            "ansbach.findScroll"
           ],
           "warning": "别拿到卷轴就立刻交；先核对弗蕾亚委托。"
         },
@@ -5282,7 +5361,21 @@ window.JOURNEY_CATALOG = {
           "after": [
             "moore.shop"
           ],
-          "warning": "为保留早期对白，安排在魅惑破碎前；若已破碎但穆尔仍在，先选“我不知道”再检查其他交谈选项。"
+          "warning": "为保留早期对白，安排在魅惑破碎前；若已破碎但穆尔仍在，先选“我不知道”再检查其他交谈选项。",
+          "when": [
+            {
+              "questId": "thiollier",
+              "optionIds": [
+                "complete",
+                "concoction"
+              ]
+            }
+          ],
+          "optionalFor": [
+            "move",
+            "sad",
+            "wait"
+          ]
         },
         {
           "id": "moore.notes2",
@@ -5291,11 +5384,10 @@ window.JOURNEY_CATALOG = {
           "title": "与眺望镇东侧集物虫交谈，领取制作笔记2",
           "detail": "由墓地平原西侧的高地道路接近眺望镇，寻找镇东侧草地上正在挖掘的友好集物虫，互动取得集物虫的制作笔记【２】。它不会主动攻击，不需要战斗。",
           "options": [],
-          "needs": [],
-          "after": [
-            "moore.shop",
-            "moore.syrup"
+          "needs": [
+            "story.dlc"
           ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5305,12 +5397,10 @@ window.JOURNEY_CATALOG = {
           "title": "放温热石救助蜷缩集物虫，刷新后领取制作笔记4",
           "detail": "从圣战教堂向北到悬崖附近，找到蜷缩不动的集物虫。在它身边使用温热石，等其恢复，再坐赐福或传送刷新地图，回来交谈取得集物虫的制作笔记【４】。前期沿教堂周边行动，避免继续向幽影城靠近。",
           "options": [],
-          "needs": [],
-          "after": [
-            "moore.shop",
-            "moore.syrup",
-            "moore.notes2"
+          "needs": [
+            "story.dlc"
           ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5320,13 +5410,10 @@ window.JOURNEY_CATALOG = {
           "title": "救助集物虫后回找穆尔，领取制作笔记7",
           "detail": "拿到北侧病弱集物虫的制作笔记4后，回“正门前方的十字记号”与穆尔交谈，领取集物虫的制作笔记【７】。不要求先拿齐其他六册；穆尔离开或死亡后无法再从他这里取得。",
           "options": [],
-          "needs": [],
-          "after": [
-            "moore.shop",
-            "moore.syrup",
-            "moore.notes2",
+          "needs": [
             "moore.notes4"
           ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5336,14 +5423,10 @@ window.JOURNEY_CATALOG = {
           "title": "在恩希斯城外悬崖边领取制作笔记1",
           "detail": "从穆斯废墟一带向西南走，接近恩希斯城城主房间南方、俯瞰峡谷的崖边。与正在挖掘的友好集物虫交谈，取得集物虫的制作笔记【１】。它在城外高地，不用返回城内 Boss 房。",
           "options": [],
-          "needs": [],
-          "after": [
-            "moore.shop",
-            "moore.syrup",
-            "moore.notes2",
-            "moore.notes4",
-            "moore.notes7"
+          "needs": [
+            "story.dlc"
           ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5353,15 +5436,10 @@ window.JOURNEY_CATALOG = {
           "title": "在河口北侧树林崖边领取制作笔记3",
           "detail": "由“艾拉克河下游”向青蓝海岸方向走，到河口有燃炉魔像的区域，再沿东北侧的树林走向崖边尽头。与友好集物虫交谈取得集物虫的制作笔记【３】。不要为此攻击附近的友好目标。",
           "options": [],
-          "needs": [],
-          "after": [
-            "moore.shop",
-            "moore.syrup",
-            "moore.notes2",
-            "moore.notes4",
-            "moore.notes7",
-            "moore.notes1"
+          "needs": [
+            "story.dlc"
           ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5371,16 +5449,10 @@ window.JOURNEY_CATALOG = {
           "title": "穿过北方水池后的洞窟，领取制作笔记5",
           "detail": "从穆斯废墟向北到有玛莉卡雕像的水池，进入后方洞窟，从另一端走到毒池区域，寻找俯瞰幽影城积水处方向的悬崖边集物虫，交谈取得集物虫的制作笔记【５】。沿路可能接近大卢恩破碎范围，出发前先完成本表早期回访。",
           "options": [],
-          "needs": [],
-          "after": [
-            "moore.shop",
-            "moore.syrup",
-            "moore.notes2",
-            "moore.notes4",
-            "moore.notes7",
-            "moore.notes1",
-            "moore.notes3"
+          "needs": [
+            "story.dlc"
           ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5393,16 +5465,7 @@ window.JOURNEY_CATALOG = {
           "needs": [
             "story.charm"
           ],
-          "after": [
-            "moore.shop",
-            "moore.syrup",
-            "moore.notes2",
-            "moore.notes4",
-            "moore.notes7",
-            "moore.notes1",
-            "moore.notes3",
-            "moore.notes5"
-          ],
+          "after": [],
           "warning": ""
         },
         {
@@ -5559,7 +5622,20 @@ window.JOURNEY_CATALOG = {
           "after": [
             "thiollier.cross"
           ],
-          "warning": "药会杀死玩家；本表提前完成领取，不强迫提前给龙飨女巫服用。"
+          "warning": "药会杀死玩家；本表提前完成领取，不强迫提前给龙飨女巫服用。",
+          "when": [
+            {
+              "questId": "moore",
+              "optionIds": [
+                "move",
+                "sad",
+                "wait"
+              ]
+            }
+          ],
+          "optionalFor": [
+            "complete"
+          ]
         },
         {
           "id": "thiollier.fissure",
@@ -5574,8 +5650,7 @@ window.JOURNEY_CATALOG = {
             "story.charm"
           ],
           "after": [
-            "thiollier.cross",
-            "thiollier.concoction"
+            "thiollier.cross"
           ],
           "warning": ""
         },
@@ -5591,7 +5666,6 @@ window.JOURNEY_CATALOG = {
           "needs": [],
           "after": [
             "thiollier.cross",
-            "thiollier.concoction",
             "thiollier.fissure"
           ],
           "warning": "每次喝花蜜都会死亡。按实际听到的新对白推进，不把喝一次就复活当作支线完成。"
@@ -5608,7 +5682,6 @@ window.JOURNEY_CATALOG = {
           "needs": [],
           "after": [
             "thiollier.cross",
-            "thiollier.concoction",
             "thiollier.fissure",
             "thiollier.nectar"
           ],
@@ -5628,7 +5701,6 @@ window.JOURNEY_CATALOG = {
           ],
           "after": [
             "thiollier.cross",
-            "thiollier.concoction",
             "thiollier.fissure",
             "thiollier.nectar",
             "thiollier.invade"
@@ -5649,7 +5721,6 @@ window.JOURNEY_CATALOG = {
           ],
           "after": [
             "thiollier.cross",
-            "thiollier.concoction",
             "thiollier.fissure",
             "thiollier.nectar",
             "thiollier.invade",
@@ -5826,13 +5897,13 @@ window.JOURNEY_CATALOG = {
         },
         {
           "id": "ymir.anna",
-          "order": 1371,
+          "order": 1369,
           "region": "玛努斯·美特大教堂：座椅下方密道",
           "title": "进入座椅密道击败安娜，回教堂向约兰补充报告",
-          "detail": "回报两处吊钟并领取第三张地图后刷新，尤弥尔离座时互动空座椅开密道。下梯处理黑夜剑士安娜入侵，随后传送回教堂，与尤弥尔及约兰谈地下袭击，再回来处理最终吊钟。第一张地图回报后也有提前进密道的机会：若已做过，只需核对击败及回报两项完成，无须重打。",
+          "detail": "回报第一处吊钟后，尤弥尔离座时可互动空座椅打开密道，下梯处理黑夜剑士安娜入侵。随后回教堂，与尤弥尔及约兰谈地下袭击。若此时没有进入密道，也可在回报第二处吊钟、领取第三张地图后处理；第三处吊钟仍要等两处遗迹都完成后再去。已击败并回报过安娜的，不必重打。",
           "options": [],
           "needs": [
-            "ymir.dheo"
+            "ymir.rhia"
           ],
           "after": [
             "ymir.cathedral",
@@ -5967,11 +6038,9 @@ window.JOURNEY_CATALOG = {
           "detail": "骨灰或双人骨灰：准备赐福覆眼膜，可从保藏库（一楼）通向地底的路线、或教区放水后通向“礼树暗道”的区域取得。黑夜刀：准备黑暗覆眼膜，可在惩罚要塞地底取得，或击败放水后教区中的对应腐败树灵取得。若昆兰也选同一种奖励，需要该种覆眼膜各一枚，不能让两人共用一枚。",
           "options": [],
           "needs": [
-            "ymir.fight"
+            "story.dlc"
           ],
-          "after": [
-            "jolan.meet"
-          ],
+          "after": [],
           "warning": "通过 NPC 对话交付，不要从背包直接消耗覆眼膜。"
         },
         {
@@ -6069,12 +6138,9 @@ window.JOURNEY_CATALOG = {
           "detail": "要昆兰骨灰，准备赐福覆眼膜：保藏库（一楼）往下通向地底的路线、或放水教区通向礼树暗道的区域可取得。要昆兰的大剑，准备黑暗覆眼膜：惩罚要塞地底、放水教区对应腐败树灵可各取得一枚。若约兰也选相同类型奖励，分别准备两枚。",
           "options": [],
           "needs": [
-            "story.charm"
+            "story.dlc"
           ],
-          "after": [
-            "queelign.town",
-            "queelign.church"
-          ],
+          "after": [],
           "warning": "覆眼膜是交给 NPC 的道具，直接在背包使用会浪费。"
         },
         {
@@ -6705,7 +6771,9 @@ window.JOURNEY_CATALOG = {
         "thiollier.allies",
         "ymir.anna",
         "jolan.eyes",
-        "queelign.eyes"
+        "queelign.eyes",
+        "d.giveArmor",
+        "ranni.defeatAstel"
       ],
       "warning": ""
     },
@@ -7296,6 +7364,16 @@ window.JOURNEY_CATALOG = {
         }
       ]
     }
+  ],
+  "sharedSteps": [
+    [
+      "gowry.repair",
+      "millicent.repair"
+    ],
+    [
+      "fia.dagger",
+      "d.dagger"
+    ]
   ]
 }
 ;

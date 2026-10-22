@@ -25,6 +25,7 @@
         if (!step.id || !step.title || stepIds.has(step.id)) throw new Error("步骤 ID 重复或标题为空：" + (step.id || "未知"));
         stepIds.add(step.id);
         if ((step.options || []).some(optionId => !quest.options.some(option => option.id === optionId))) throw new Error("步骤引用了不存在的分支：" + step.id);
+        if ((step.optionalFor || []).some(optionId => !quest.options.some(option => option.id === optionId))) throw new Error("可选步骤引用了不存在的分支：" + step.id);
       }
       for (const requirement of quest.options.flatMap(option => option.requirements || [])) {
         const target = quests.get(requirement.questId);
@@ -36,8 +37,18 @@
       if (!step.id || !step.title || stepIds.has(step.id)) throw new Error("步骤 ID 重复或标题为空：" + (step.id || "未知"));
       stepIds.add(step.id);
     }
-    for (const step of [...catalog.milestones, ...catalog.quests.flatMap(quest => quest.steps || [])])
-      if ([...(step.needs || []), ...(step.after || [])].some(dependency => !stepIds.has(dependency))) throw new Error("步骤前置不存在：" + step.id);
+    for (const step of [...catalog.milestones, ...catalog.quests.flatMap(quest => quest.steps || [])]) {
+      if ([...(step.needs || []), ...(step.after || []), ...(step.completionNeeds || [])].some(dependency => !stepIds.has(dependency))) throw new Error("步骤前置不存在：" + step.id);
+      if ((step.when || []).some(route => !quests.get(route.questId) || !route.optionIds?.length ||
+          route.optionIds.some(optionId => !quests.get(route.questId).options.some(option => option.id === optionId))))
+        throw new Error("步骤条件无效：" + step.id);
+    }
+    const sharedIds = new Set();
+    for (const group of catalog.sharedSteps || []) {
+      if (!Array.isArray(group) || group.length < 2 || group.some(stepId => !stepIds.has(stepId) || sharedIds.has(stepId)))
+        throw new Error("共用进度步骤定义无效。");
+      group.forEach(stepId => sharedIds.add(stepId));
+    }
     const collectionIds = new Set(), itemIds = new Set();
     const validRoute = route => {
       const quest = quests.get(route.questId);
@@ -60,22 +71,23 @@
   }
 
   function newProfile(name = "我的第一周目") {
-    return { id: id(), name, choices: {}, completed: [], collected: [], stepOrder: [], updatedAt: new Date().toISOString(), catalogVersion: 1 };
+    return { id: id(), name, choices: {}, completed: [], collected: [], stepOrder: [], questOrder: [], updatedAt: new Date().toISOString(), catalogVersion: 3 };
   }
 
   function normalizeProfile(source) {
     if (!source || typeof source !== "object" || Array.isArray(source)) throw new Error("计划文件格式无效。");
-    const choices = read(source, "choices", {}), completed = read(source, "completed", []), collected = read(source, "collected", []), stepOrder = read(source, "stepOrder", []);
+    const choices = read(source, "choices", {}), completed = read(source, "completed", []), collected = read(source, "collected", []), stepOrder = read(source, "stepOrder", []), questOrder = read(source, "questOrder", []);
     const name = String(read(source, "name", "")).trim();
     const profileId = String(read(source, "id", ""));
     if (!/^[a-f\d]{32}$/i.test(profileId) || !name || name.length > 60 || !choices || typeof choices !== "object" || Array.isArray(choices) ||
-        !Array.isArray(completed) || !Array.isArray(collected) || !Array.isArray(stepOrder)) throw new Error("计划名称、ID 或进度格式无效。");
+        !Array.isArray(completed) || !Array.isArray(collected) || !Array.isArray(stepOrder) || !Array.isArray(questOrder)) throw new Error("计划名称、ID 或进度格式无效。");
     return {
       id: profileId.toLowerCase(), name,
       choices: Object.fromEntries(Object.entries(choices).filter(([key, value]) => typeof key === "string" && typeof value === "string")),
       completed: distinct(completed.filter(value => typeof value === "string")),
       collected: distinct(collected.filter(value => typeof value === "string")),
       stepOrder: distinct(stepOrder.filter(value => typeof value === "string")),
+      questOrder: distinct(questOrder.filter(value => typeof value === "string")),
       updatedAt: String(read(source, "updatedAt", new Date().toISOString())),
       catalogVersion: Number(read(source, "catalogVersion", 1)) || 1
     };
@@ -149,7 +161,9 @@
       for (const dependency of node.step.needs || []) add(dependency);
     }
     for (const { quest, option } of chosen)
-      for (const step of quest.steps.filter(value => !value.options?.length || value.options.includes(option.id))) add(step.id);
+      for (const step of quest.steps.filter(value => (!value.options?.length || value.options.includes(option.id)) &&
+          (!value.optionalFor?.includes(option.id) || profile.completed.includes(value.id)) &&
+          (value.when || []).every(route => route.optionIds.includes(choices[route.questId])))) add(step.id);
     if (cleanse && choices.millicent === "assist") add("story.cleanse");
     if (chosen.some(entry => entry.option.ending || ["ranni", "fia", "goldmask", "dung"].includes(entry.quest.id))) add("story.final");
 
