@@ -1,5 +1,5 @@
 window.JOURNEY_CATALOG = {
-  "version": 3,
+  "version": 4,
   "notice": "本体依据提供的全支线整理稿；DLC 参考同作者《艾尔登法环DLC支线攻略》，已补充具体操作、交叉分支与名称校对。此表记录玩家自己的进度，不能判断当前存档已错过的事件；成王之路及无缝联机差异需结合游戏内状态核对。",
   "quests": [
     {
@@ -1062,7 +1062,8 @@ window.JOURNEY_CATALOG = {
             "story.radahn"
           ],
           "after": [
-            "ranni.join"
+            "ranni.join",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1080,7 +1081,8 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "seluvis.amber",
-            "dung.puppet"
+            "dung.puppet",
+            "seluvis.amber.absolve"
           ],
           "warning": "交刀前完成所选赛尔维斯药水、傀儡和魔力对蝎目标。"
         },
@@ -1095,7 +1097,8 @@ window.JOURNEY_CATALOG = {
           "after": [
             "ranni.renna",
             "ranni.join",
-            "ranni.blade"
+            "ranni.blade",
+            "seluvis.amber.absolve"
           ],
           "warning": "",
           "optionalFor": [
@@ -1117,7 +1120,8 @@ window.JOURNEY_CATALOG = {
           "after": [
             "ranni.renna",
             "ranni.join",
-            "ranni.blade"
+            "ranni.blade",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1136,7 +1140,8 @@ window.JOURNEY_CATALOG = {
             "ranni.renna",
             "ranni.join",
             "ranni.blade",
-            "ranni.mini"
+            "ranni.mini",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1156,7 +1161,8 @@ window.JOURNEY_CATALOG = {
             "ranni.join",
             "ranni.blade",
             "ranni.mini",
-            "ranni.shadow"
+            "ranni.shadow",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1172,7 +1178,8 @@ window.JOURNEY_CATALOG = {
           ],
           "needs": [],
           "after": [
-            "ranni.mini"
+            "ranni.mini",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1194,7 +1201,8 @@ window.JOURNEY_CATALOG = {
             "ranni.mini",
             "ranni.shadow",
             "ranni.ring",
-            "ranni.defeatAstel"
+            "ranni.defeatAstel",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1217,7 +1225,8 @@ window.JOURNEY_CATALOG = {
             "ranni.shadow",
             "ranni.ring",
             "ranni.astel",
-            "ranni.defeatAstel"
+            "ranni.defeatAstel",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         },
@@ -1242,7 +1251,8 @@ window.JOURNEY_CATALOG = {
             "ranni.ring",
             "ranni.astel",
             "ranni.marry",
-            "ranni.defeatAstel"
+            "ranni.defeatAstel",
+            "seluvis.amber.absolve"
           ],
           "warning": ""
         }
@@ -1552,7 +1562,7 @@ window.JOURNEY_CATALOG = {
         {
           "id": "seluvis.amber",
           "title": "取得琥珀星光，交给赛尔维斯，领取魔力对蝎护符",
-          "detail": "到亚坛高原、王城外围西侧的隐蔽山谷，在米凯拉与玛莲妮亚雕像附近取得琥珀星光。回赛尔维斯魔法师塔交付并领取魔力对蝎；选择食粪者傀儡时也先兑换完目标。不要为了本步骤把后来的琥珀色药水交给菈妮。 若仍决定把琥珀色药水交给菈妮并导致赛尔维斯提前死亡，马上回塔收取铃珠与套装，不必等交猎杀指头刀。",
+          "detail": "到亚坛高原、王城外围西侧的隐蔽山谷，在米凯拉与玛莲妮亚雕像附近取得琥珀星光。回赛尔维斯魔法师塔交付并领取魔力对蝎；选择食粪者傀儡时也先兑换完目标。取得后，另在“赛尔维斯：琥珀色药水”中选择不交给菈妮或尝试交付。",
           "order": 600,
           "region": "亚坛高原",
           "options": [],
@@ -1576,8 +1586,124 @@ window.JOURNEY_CATALOG = {
           "needs": [
             "ranni.blade"
           ],
+          "when": [
+            {
+              "questId": "seluvisAmber",
+              "optionIds": [
+                "keep"
+              ]
+            }
+          ],
           "after": [],
           "warning": "交猎杀指头刀前，先领取赛尔维斯路线中仍需要的奖励与傀儡。"
+        }
+      ]
+    },
+    {
+      "id": "seluvisAmber",
+      "name": "赛尔维斯：琥珀色药水",
+      "hidden": true,
+      "displayWith": "seluvis",
+      "summary": "这是交付初始药水之后制作的另一瓶药，和涅斐丽、食粪者的初始药水分支不同。琥珀色药水只能尝试交给菈妮，也可以选择不交；尝试交付会中断菈妮支线并使赛尔维斯提前死亡，之后可在教堂赎罪恢复菈妮的敌对状态。",
+      "defaultOption": "keep",
+      "category": "base",
+      "source": "赛尔维斯与琥珀色药水的游戏内分支；交付后果参考 Elden Ring Wiki.gg，当前 Mod 差异需结合游戏内状态核对。",
+      "options": [
+        {
+          "id": "keep",
+          "label": "不交给菈妮，继续正常路线",
+          "description": "可把药水留在背包；之后交猎杀指头刀时，赛尔维斯仍会按正常流程死亡。",
+          "ending": "",
+          "requirements": [
+            {
+              "questId": "seluvis",
+              "optionIds": [
+                "gideon",
+                "nepheli",
+                "dung"
+              ],
+              "reason": "琥珀色药水来自赛尔维斯的后续阶段，请先选择初始药水的处理路线，或将本支线设为不安排。"
+            }
+          ]
+        },
+        {
+          "id": "giveRanni",
+          "label": "尝试交给菈妮（会中断她的支线）",
+          "description": "菈妮会识破并驱逐玩家；可在结缘教堂赎罪后继续。赛尔维斯会提前死亡。",
+          "ending": "",
+          "requirements": [
+            {
+              "questId": "seluvis",
+              "optionIds": [
+                "gideon",
+                "nepheli",
+                "dung"
+              ],
+              "reason": "琥珀色药水来自赛尔维斯的后续阶段，请先选择初始药水的处理路线，或将本支线设为不安排。"
+            }
+          ]
+        }
+      ],
+      "steps": [
+        {
+          "id": "seluvis.amber.keep",
+          "title": "不把琥珀色药水交给菈妮，继续当前路线",
+          "detail": "这瓶琥珀色药水只有交给菈妮这一种交付对象；不交即可继续菈妮支线。之后将猎杀指头刀交给菈妮，赛尔维斯仍会按正常流程死亡并留下铃珠与教授套装。",
+          "order": 605,
+          "region": "菈妮魔法师塔",
+          "options": [
+            "keep"
+          ],
+          "needs": [
+            "seluvis.amber"
+          ],
+          "after": [],
+          "warning": "不要把这瓶药与赛尔维斯最初交给你的药水混淆。"
+        },
+        {
+          "id": "seluvis.amber.giveRanni",
+          "title": "尝试把琥珀色药水交给菈妮",
+          "detail": "回菈妮魔法师塔尝试交药。菈妮会识破赛尔维斯的计划并驱逐玩家；在结缘教堂使用星星泪滴赎罪后可恢复与菈妮的关系。离开并刷新区域后，赛尔维斯会提前死亡。",
+          "order": 605,
+          "region": "菈妮魔法师塔",
+          "options": [
+            "giveRanni"
+          ],
+          "needs": [
+            "seluvis.amber"
+          ],
+          "after": [],
+          "warning": "不可逆：赛尔维斯提前死亡；菈妮支线需赎罪后才能继续。"
+        },
+        {
+          "id": "seluvis.amber.absolve",
+          "title": "到结缘教堂赎罪，恢复与菈妮的关系",
+          "detail": "尝试交药后，前往湖之利耶尼亚的结缘教堂，在赎罪雕像处使用星星泪滴。完成后才能继续菈妮支线。",
+          "order": 607,
+          "region": "湖之利耶尼亚：结缘教堂",
+          "options": [
+            "giveRanni"
+          ],
+          "needs": [
+            "seluvis.amber.giveRanni"
+          ],
+          "after": [],
+          "warning": "需要星星泪滴。"
+        },
+        {
+          "id": "seluvis.amber.collect",
+          "title": "赛尔维斯提前死亡后，回塔领取铃珠与教授套装",
+          "detail": "尝试交药后离开并刷新区域，回赛尔维斯魔法师塔，从遗体领取赛尔维斯的铃珠与教授套装。",
+          "order": 606,
+          "region": "赛尔维斯魔法师塔",
+          "options": [
+            "giveRanni"
+          ],
+          "needs": [
+            "seluvis.amber.giveRanni"
+          ],
+          "after": [],
+          "warning": "若选择交给菈妮，尽早回塔收取奖励。"
         }
       ]
     },
@@ -1632,7 +1758,38 @@ window.JOURNEY_CATALOG = {
           "after": [
             "pidia.shop"
           ],
+          "when": [
+            {
+              "questId": "seluvisAmber",
+              "optionIds": [
+                "keep"
+              ]
+            }
+          ],
           "warning": ""
+        },
+        {
+          "id": "pidia.amberDeath",
+          "title": "赛尔维斯提前死亡后回访毕迪，检查遗留物",
+          "detail": "尝试把琥珀色药水交给菈妮后，离开并刷新区域，再从城寨屋顶路线前往毕迪处。毕迪死亡后检查遗体，领取铃珠与当前分支留下的傀儡。",
+          "order": 616,
+          "region": "卡利亚城寨下层",
+          "options": [],
+          "needs": [
+            "seluvis.amber.giveRanni"
+          ],
+          "after": [
+            "pidia.shop"
+          ],
+          "when": [
+            {
+              "questId": "seluvisAmber",
+              "optionIds": [
+                "giveRanni"
+              ]
+            }
+          ],
+          "warning": "提前触发会改变毕迪与傀儡的结尾。"
         }
       ]
     },
