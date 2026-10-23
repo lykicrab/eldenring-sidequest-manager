@@ -23,6 +23,10 @@
       profile.catalogVersion = 2;
     }
     if (profile.catalogVersion < 3) profile.catalogVersion = 3;
+    if (profile.catalogVersion < 4) {
+      if (!profile.choices.seluvisAmber) profile.choices.seluvisAmber = "keep";
+      profile.catalogVersion = 4;
+    }
     syncSharedSteps(catalog, profile);
     return profile;
   }
@@ -32,8 +36,9 @@
     model.stepMap = new Map(model.plan.steps.map(step => [step.id, step]));
     model.storyMap = new Map(model.catalog.milestones.map(step => [step.id, step]));
     model.sourceSteps = new Map([...model.catalog.milestones, ...model.catalog.quests.flatMap(quest => quest.steps)].map(step => [step.id, step]));
-    model.rows = model.catalog.quests.map(quest => {
-      const steps = model.plan.steps.filter(step => step.questId === quest.id);
+    model.rows = model.catalog.quests.filter(quest => !quest.hidden).map(quest => {
+      const relatedIds = new Set([quest.id, ...model.catalog.quests.filter(value => value.displayWith === quest.id).map(value => value.id)]);
+      const steps = model.plan.steps.filter(step => relatedIds.has(step.questId));
       return { quest, steps, next: steps.find(step => !step.completed), done: steps.filter(step => step.completed).length };
     });
   }
@@ -358,7 +363,8 @@
     if (view === "npc") renderPersonal();
   }
   function openPersonal(questId) {
-    activeNpc = questId; switchView("npc");
+    const target = model.catalog.quests.find(value => value.id === questId);
+    activeNpc = target?.displayWith || questId; switchView("npc");
     $("npcView").scrollIntoView({ block: "start", behavior: "smooth" });
   }
   function openPrerequisites(stepId) {
@@ -584,6 +590,21 @@
         copy.append(node("strong", "", option.label)); if (option.description) copy.append(node("span", "", option.description));
         label.append(radio, copy); options.append(label);
       } detail.append(fieldset);
+      const extraDecisions = model.catalog.quests.filter(value => value.displayWith === quest.id);
+      for (const decision of extraDecisions) {
+        const extraFieldset = node("fieldset", "route-options"), extraOptions = node("div", "route-option-list");
+        extraFieldset.append(node("legend", "", "琥珀色药水去向"), extraOptions);
+        const extraChoice = (draftChoices || model.profile.choices)[decision.id] || "skip";
+        for (const option of [...decision.options, { id: "skip", label: "本周目不安排", description: "" }]) {
+          const label = node("label", "route-option"), radio = node("input", ""), copy = node("span", "");
+          radio.type = "radio"; radio.name = "npc-amber-route"; radio.value = option.id; radio.checked = extraChoice === option.id;
+          label.classList.toggle("is-current", radio.checked);
+          radio.addEventListener("change", () => chooseRoute(decision.id, option.id));
+          copy.append(node("strong", "", option.label)); if (option.description) copy.append(node("span", "", option.description));
+          label.append(radio, copy); extraOptions.append(label);
+        }
+        detail.append(extraFieldset);
+      }
     }
     const list = node("div", "flow-list");
     for (const [index, step] of steps.entries()) {
@@ -616,7 +637,7 @@
     if (!model.plan.collections.length) $("collectionList").append(node("p", "empty-state", profiles.length ? "当前选择尚无收集表。" : "新建或导入周目后显示对应收集表。"));
   }
   function renderAll() { renderProfiles(); renderQuests(); renderPersonal(); renderCollections(); }
-  for (const [title, quests] of [["本体", model.catalog.quests.filter(quest => quest.category === "base")], ["黄金树幽影", model.catalog.quests.filter(quest => quest.category === "dlc")]]) {
+  for (const [title, quests] of [["本体", model.catalog.quests.filter(quest => quest.category === "base" && !quest.hidden)], ["黄金树幽影", model.catalog.quests.filter(quest => quest.category === "dlc" && !quest.hidden)]]) {
     const group = node("optgroup", ""); group.label = title;
     quests.forEach(quest => { const option = node("option", "", quest.name); option.value = quest.id; group.append(option); }); $("npcPicker").append(group);
   }
@@ -682,12 +703,13 @@
     saveModel();
     renderAll();
     if ($("prerequisiteDialog").open) renderPrerequisites();
-    const next = model.rows.find(row => row.quest.id === step.questId)?.next;
+    const displayQuestId = model.catalog.quests.find(quest => quest.id === step.questId)?.displayWith || step.questId;
+    const next = model.rows.find(row => row.quest.id === displayQuestId)?.next;
     $("progressStatus").textContent = completed ? `已完成：${step.title}。${next ? "下一步：" + next.title : ""}` : `已取消完成：${step.title}`;
     if (context === "condition") {
       ($("prerequisiteList").querySelector("input:not(:checked)") || $("closePrerequisites")).focus({ preventScroll: true });
     } else if (context === "card") {
-      const card = [...$("questGrid").querySelectorAll("[data-npc-id]")].find(value => value.dataset.npcId === step.questId);
+      const card = [...$("questGrid").querySelectorAll("[data-npc-id]")].find(value => value.dataset.npcId === displayQuestId);
       if (card && oldTop !== undefined) { window.scrollBy(0, card.getBoundingClientRect().top - oldTop); (card.querySelector("input:not(:disabled)") || card.querySelector("button")).focus({ preventScroll: true }); }
     } else if (currentView === "npc") {
       [...$("npcDetail").querySelectorAll("[data-complete-step]")].find(value => value.dataset.completeStep === step.id)?.focus({ preventScroll: true });

@@ -71,7 +71,7 @@
   }
 
   function newProfile(name = "我的第一周目") {
-    return { id: id(), name, choices: {}, completed: [], collected: [], stepOrder: [], questOrder: [], updatedAt: new Date().toISOString(), catalogVersion: 3 };
+    return { id: id(), name, choices: {}, completed: [], collected: [], stepOrder: [], questOrder: [], updatedAt: new Date().toISOString(), catalogVersion: 4 };
   }
 
   function normalizeProfile(source) {
