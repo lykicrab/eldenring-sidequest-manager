@@ -27,10 +27,6 @@
 .route-option input{margin:0}
 .route-option>span{min-width:0;overflow-wrap:anywhere}
 .quest-grid{overflow-anchor:none}
-.quest-grid{align-items:stretch}
-.quest-card{display:flex;flex-direction:column;min-width:0}
-.card-body{display:flex;flex:1;flex-direction:column;min-width:0}
-.card-actions{margin-top:auto}
 .card-heading h3{min-width:0}
 .card-drag-handle{flex:0 0 auto;color:#9aa8a3;font-size:20px;line-height:1;cursor:grab;user-select:none}
 .quest-card.is-draggable{cursor:grab}
