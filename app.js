@@ -42,9 +42,10 @@
     if (plan.issues.length) throw new Error(plan.issues.map(issue => issue.message).join("\n"));
     const model = { catalog, core, profile }; refreshModel(model); return model;
   }
-  function parseBackup(source, core) {
+  function parseBackup(source, core, allowEmpty = false) {
     const candidates = source?.format === "sidequest-manager-web" ? source.profiles : [source];
-    if (!Array.isArray(candidates) || !candidates.length) throw new Error("文件中没有周目计划。");
+    if (!Array.isArray(candidates) || (!allowEmpty && !candidates.length)) throw new Error("文件中没有周目计划。");
+    if (!candidates.length) return { profiles: [], activeProfileId: "" };
     const profiles = candidates.map(profile => core.normalizeProfile(profile));
     const ids = new Set(profiles.map(profile => profile.id));
     if (ids.size !== profiles.length) throw new Error("文件中有重复的周目 ID。");
@@ -226,7 +227,7 @@
     if (raw) {
       const saved = JSON.parse(raw);
       if (saved.version !== 1 || saved.format !== "sidequest-manager-web") throw new Error("本地周目格式无效。");
-      const parsed = parseBackup(saved, core);
+      const parsed = parseBackup(saved, core, true);
       profiles = parsed.profiles.map(profile => createModel(catalog, core, profile).profile);
       activeProfileId = parsed.activeProfileId;
     }
@@ -263,6 +264,7 @@
     $("exportProfile").disabled = !profiles.length;
     $("cloneProfile").disabled = !profiles.length;
     $("renameProfile").disabled = !profiles.length;
+    $("deleteProfile").disabled = !profiles.length;
     $("localSaveStatus").textContent = saveError;
     $("localSaveStatus").hidden = !saveError;
     $("localSaveStatus").classList.toggle("is-error", !!saveError);
@@ -326,6 +328,22 @@
     const url = URL.createObjectURL(blob), link = node("a", "");
     link.href = url; link.download = "支线管理备份_" + new Date().toISOString().slice(0, 10) + ".json";
     document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  function deleteActiveProfile() {
+    const index = profiles.findIndex(profile => profile.id === activeProfileId);
+    if (index < 0) return;
+    const removed = profiles[index], previousProfiles = profiles, previousActiveId = activeProfileId, previousModel = model;
+    if (!window.confirm(`确定删除周目“${removed.name}”？该周目的进度、分支选择和收集记录都会从当前浏览器移除。此操作无法撤销。`)) return;
+    profiles = profiles.filter(profile => profile.id !== removed.id);
+    activeProfileId = profiles.length ? profiles[Math.min(index, profiles.length - 1)].id : "";
+    model = createModel(catalog, core, profiles.find(profile => profile.id === activeProfileId) || core.newProfile("待创建周目"));
+    draftChoices = null; choiceIssues = []; expanded.clear();
+    if (!persistLocal()) {
+      profiles = previousProfiles; activeProfileId = previousActiveId; model = previousModel;
+      renderAll(); showToast(saveError); return;
+    }
+    renderAll();
+    showMessage(profiles.length ? `已删除周目“${removed.name}”。` : `已删除周目“${removed.name}”。可以新建或导入周目。`);
   }
 
   function switchView(view) {
@@ -613,6 +631,7 @@
   $("newProfile").addEventListener("click", () => openProfileDialog("new"));
   $("cloneProfile").addEventListener("click", () => openProfileDialog("clone"));
   $("renameProfile").addEventListener("click", () => openProfileDialog("rename"));
+  $("deleteProfile").addEventListener("click", deleteActiveProfile);
   $("profileNameForm").addEventListener("submit", submitProfileName);
   $("cancelProfileName").addEventListener("click", () => $("profileNameDialog").close());
   $("importProfile").addEventListener("click", () => $("profileFile").click());
