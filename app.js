@@ -49,11 +49,11 @@
   }
   function parseBackup(source, core, allowEmpty = false) {
     const candidates = source?.format === "sidequest-manager-web" ? source.profiles : [source];
-    if (!Array.isArray(candidates) || (!allowEmpty && !candidates.length)) throw new Error("文件中没有周目计划。");
+    if (!Array.isArray(candidates) || (!allowEmpty && !candidates.length)) throw new Error("文件中没有计划计划。");
     if (!candidates.length) return { profiles: [], activeProfileId: "" };
     const profiles = candidates.map(profile => core.normalizeProfile(profile));
     const ids = new Set(profiles.map(profile => profile.id));
-    if (ids.size !== profiles.length) throw new Error("文件中有重复的周目 ID。");
+    if (ids.size !== profiles.length) throw new Error("文件中有重复的计划 ID。");
     const activeProfileId = ids.has(source?.activeProfileId) ? source.activeProfileId : profiles[0].id;
     return { profiles, activeProfileId };
   }
@@ -231,16 +231,16 @@
     const raw = localStorage.getItem(storageKey);
     if (raw) {
       const saved = JSON.parse(raw);
-      if (saved.version !== 1 || saved.format !== "sidequest-manager-web") throw new Error("本地周目格式无效。");
+      if (saved.version !== 1 || saved.format !== "sidequest-manager-web") throw new Error("本地计划格式无效。");
       const parsed = parseBackup(saved, core, true);
       profiles = parsed.profiles.map(profile => createModel(catalog, core, profile).profile);
       activeProfileId = parsed.activeProfileId;
     }
   } catch (error) {
     storageBlocked = true; saveError = "本地记录暂不可用，请导入备份后导出保存";
-    showMessage("读取已保存的周目失败，已有记录未覆盖。" + error.message, true);
+    showMessage("读取已保存的计划失败，已有记录未覆盖。" + error.message, true);
   }
-  model = createModel(catalog, core, profiles.find(profile => profile.id === activeProfileId) || core.newProfile("待创建周目"));
+  model = createModel(catalog, core, profiles.find(profile => profile.id === activeProfileId) || core.newProfile("待创建计划"));
   const expanded = new Set();
   let category = "all", activeNpc = "ranni", currentView = "next", draftChoices = null, choiceIssues = [], prerequisiteTargetId = "", draggedQuestId = "", toastTimer = 0;
   let dragPointerY = null, dragScrollFrame = 0, profileAction = "new";
@@ -253,7 +253,7 @@
       if (previous && localStorage.getItem(backupKey) === null) localStorage.setItem(backupKey, previous);
       localStorage.setItem(storageKey, JSON.stringify({ format: "sidequest-manager-web", version: 1, activeProfileId, profiles }));
       saveError = ""; return true;
-    } catch (error) { saveError = "无法自动保存，请导出本地备份"; return false; }
+    } catch (error) { saveError = "无法自动保存，请导出计划备份"; return false; }
   }
   function saveModel() {
     const index = profiles.findIndex(profile => profile.id === activeProfileId);
@@ -263,7 +263,7 @@
   }
   function renderProfiles() {
     const select = $("localProfile"); select.replaceChildren(); select.disabled = !profiles.length;
-    if (!profiles.length) select.append(node("option", "", "请新建或导入周目"));
+    if (!profiles.length) select.append(node("option", "", "请新建或导入计划"));
     profiles.forEach(profile => { const option = node("option", "", profile.name); option.value = profile.id; select.append(option); });
     if (profiles.length) select.value = activeProfileId;
     $("exportProfile").disabled = !profiles.length;
@@ -296,8 +296,8 @@
   }
   function openProfileDialog(action) {
     profileAction = action;
-    $("profileNameTitle").textContent = ({ new: "新建周目", clone: "复制当前周目", rename: "修改周目名称" })[action];
-    $("profileName").value = action === "new" ? (profiles.length ? "新周目" : "我的第一周目")
+    $("profileNameTitle").textContent = ({ new: "新建计划", clone: "复制当前计划", rename: "修改计划名称" })[action];
+    $("profileName").value = action === "new" ? (profiles.length ? "新计划" : "我的第一份计划")
       : action === "clone" ? (model.profile.name.slice(0, 54) + "（副本）") : model.profile.name;
     $("newProfileRoutes").hidden = action !== "new";
     $("profileNameError").hidden = true;
@@ -307,7 +307,7 @@
     event.preventDefault();
     const name = $("profileName").value.trim();
     if (!name || name.length > 60) {
-      $("profileNameError").textContent = "请输入 1～60 个字符的周目名称。"; $("profileNameError").hidden = false; return;
+      $("profileNameError").textContent = "请输入 1～60 个字符的计划名称。"; $("profileNameError").hidden = false; return;
     }
     let source;
     if (profileAction === "rename") source = { ...model.profile, name };
@@ -331,24 +331,24 @@
     const backup = { format: "sidequest-manager-web", version: 1, exportedAt: new Date().toISOString(), activeProfileId, profiles };
     const blob = new Blob([JSON.stringify(backup, null, 2)], { type: "application/json;charset=utf-8" });
     const url = URL.createObjectURL(blob), link = node("a", "");
-    link.href = url; link.download = "支线管理备份_" + new Date().toISOString().slice(0, 10) + ".json";
+    link.href = url; link.download = "支线管理计划备份_" + new Date().toISOString().slice(0, 10) + ".json";
     document.body.append(link); link.click(); link.remove(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function deleteActiveProfile() {
     const index = profiles.findIndex(profile => profile.id === activeProfileId);
     if (index < 0) return;
     const removed = profiles[index], previousProfiles = profiles, previousActiveId = activeProfileId, previousModel = model;
-    if (!window.confirm(`确定删除周目“${removed.name}”？该周目的进度、分支选择和收集记录都会从当前浏览器移除。此操作无法撤销。`)) return;
+    if (!window.confirm(`确定删除计划“${removed.name}”？该计划的进度、分支选择和收集记录都会从当前浏览器移除。此操作无法撤销。`)) return;
     profiles = profiles.filter(profile => profile.id !== removed.id);
     activeProfileId = profiles.length ? profiles[Math.min(index, profiles.length - 1)].id : "";
-    model = createModel(catalog, core, profiles.find(profile => profile.id === activeProfileId) || core.newProfile("待创建周目"));
+    model = createModel(catalog, core, profiles.find(profile => profile.id === activeProfileId) || core.newProfile("待创建计划"));
     draftChoices = null; choiceIssues = []; expanded.clear();
     if (!persistLocal()) {
       profiles = previousProfiles; activeProfileId = previousActiveId; model = previousModel;
       renderAll(); showToast(saveError); return;
     }
     renderAll();
-    showMessage(profiles.length ? `已删除周目“${removed.name}”。` : `已删除周目“${removed.name}”。可以新建或导入周目。`);
+    showMessage(profiles.length ? `已删除计划“${removed.name}”。` : `已删除计划“${removed.name}”。可以新建或导入计划。`);
   }
 
   function switchView(view) {
@@ -531,7 +531,7 @@
     const finished = model.rows.filter(row => row.steps.length && !row.next && inCategory(row) && (!query || row.steps.some(step => matches(row, step))));
     const canReorder = profiles.length > 0 && category === "all" && !query;
     const grid = $("questGrid"); grid.replaceChildren(...visible.map(row => cardFor(row, canReorder)));
-    if (!visible.length) grid.append(node("p", "empty-state", profiles.length ? "没有匹配的未完成步骤。" : "点击“新建周目”开始，或导入已有周目备份。"));
+    if (!visible.length) grid.append(node("p", "empty-state", profiles.length ? "没有匹配的未完成步骤。" : "点击“新建计划”开始，或导入已有计划备份。"));
     const inconsistent = model.plan.steps.filter(step => step.completed && !canComplete(model, step));
     const warning = $("progressWarning"); warning.hidden = !inconsistent.length; warning.replaceChildren();
     if (inconsistent.length) {
@@ -563,7 +563,7 @@
   function renderPersonal() {
     $("npcPicker").value = activeNpc;
     const detail = $("npcDetail"); detail.replaceChildren();
-    if (!profiles.length) { detail.append(node("p", "empty-state", "新建或导入周目后，可在这里查看个人进度和选择支线结局。")); return; }
+    if (!profiles.length) { detail.append(node("p", "empty-state", "新建或导入计划后，可在这里查看个人进度和选择支线结局。")); return; }
     const conflict = $("choiceConflict"); conflict.replaceChildren(); conflict.hidden = !choiceIssues.length;
     if (choiceIssues.length) {
       conflict.append(node("strong", "", "这次分支选择尚未应用，当前进度仍按原分支展示。"));
@@ -580,9 +580,9 @@
     heading.append(node("h3", "", quest?.name || "NPC 个人进度"), node("span", "card-progress", `${steps.filter(step => step.completed).length} / ${steps.length} 步完成`)); detail.append(heading);
     if (quest) {
       const fieldset = node("fieldset", "route-options"), options = node("div", "route-option-list");
-      fieldset.append(node("legend", "", "本周目分支 / 结局"), options);
+      fieldset.append(node("legend", "", "本计划分支 / 结局"), options);
       const currentChoice = (draftChoices || model.profile.choices)[quest.id] || "skip";
-      for (const option of [...quest.options, { id: "skip", label: "本周目不安排", description: "" }]) {
+      for (const option of [...quest.options, { id: "skip", label: "本计划不安排", description: "" }]) {
         const label = node("label", "route-option"), radio = node("input", ""), copy = node("span", "");
         radio.type = "radio"; radio.name = "npc-route"; radio.value = option.id; radio.checked = currentChoice === option.id;
         label.classList.toggle("is-current", radio.checked);
@@ -595,7 +595,7 @@
         const extraFieldset = node("fieldset", "route-options"), extraOptions = node("div", "route-option-list");
         extraFieldset.append(node("legend", "", "琥珀色药水去向"), extraOptions);
         const extraChoice = (draftChoices || model.profile.choices)[decision.id] || "skip";
-        for (const option of [...decision.options, { id: "skip", label: "本周目不安排", description: "" }]) {
+        for (const option of [...decision.options, { id: "skip", label: "本计划不安排", description: "" }]) {
           const label = node("label", "route-option"), radio = node("input", ""), copy = node("span", "");
           radio.type = "radio"; radio.name = "npc-amber-route"; radio.value = option.id; radio.checked = extraChoice === option.id;
           label.classList.toggle("is-current", radio.checked);
@@ -614,7 +614,7 @@
       const extra = node("details", ""); extra.append(node("summary", "", "操作细节"), detailsContent(step)); copy.append(extra);
       item.append(completeControl(step, "personal"), copy); list.append(item);
     }
-    if (!steps.length) list.append(node("p", "empty-state", "当前周目未安排这条支线。")); detail.append(list);
+    if (!steps.length) list.append(node("p", "empty-state", "当前计划未安排这条支线。")); detail.append(list);
   }
   function renderCollections() {
     const opened = new Set([...$("collectionList").querySelectorAll("details[open]")].map(value => value.id)); $("collectionList").replaceChildren();
@@ -634,7 +634,7 @@
       }
       table.append(head, tbody); wrap.append(table); group.append(wrap); $("collectionList").append(group);
     }
-    if (!model.plan.collections.length) $("collectionList").append(node("p", "empty-state", profiles.length ? "当前选择尚无收集表。" : "新建或导入周目后显示对应收集表。"));
+    if (!model.plan.collections.length) $("collectionList").append(node("p", "empty-state", profiles.length ? "当前选择尚无收集表。" : "新建或导入计划后显示对应收集表。"));
   }
   function renderAll() { renderProfiles(); renderQuests(); renderPersonal(); renderCollections(); }
   for (const [title, quests] of [["本体", model.catalog.quests.filter(quest => quest.category === "base" && !quest.hidden)], ["黄金树幽影", model.catalog.quests.filter(quest => quest.category === "dlc" && !quest.hidden)]]) {
