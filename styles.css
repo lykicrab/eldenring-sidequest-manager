@@ -43,6 +43,9 @@
 
 .offline-status{display:inline-flex;align-items:center;border:1px solid var(--line);padding:6px 10px;border-radius:20px;font-size:11px;color:var(--muted);white-space:nowrap}
 .danger-button{color:#9a5148;border-color:#e6d2cf}.danger-button:hover{background:#fff6f4;border-color:#d8b4ae}
+.back-to-top{position:fixed;right:24px;bottom:24px;z-index:8;display:flex;align-items:center;gap:7px;padding:10px 14px;border:1px solid #cbded5;border-radius:999px;background:#fff;color:var(--accent);box-shadow:0 5px 18px #22342d20;font-size:13px;font-weight:600}
+.back-to-top:hover{background:var(--accent-light)}.back-to-top span{font-size:11px;font-weight:500}
+@media(max-width:760px){.back-to-top{right:14px;bottom:16px;padding:9px 12px}}
 .offline-status.ready{color:var(--accent);background:var(--accent-light);border-color:#d7e9e1}
 #profileNameDialog{width:min(440px,calc(100vw - 32px));border:1px solid var(--line);border-radius:12px;padding:24px;color:var(--ink);box-shadow:0 16px 70px #12251c30}
 #profileNameDialog::backdrop{background:#14291d66}

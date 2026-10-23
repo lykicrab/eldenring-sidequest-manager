@@ -637,6 +637,8 @@
   $("importProfile").addEventListener("click", () => $("profileFile").click());
   $("profileFile").addEventListener("change", () => importProfiles([...$("profileFile").files]));
   $("exportProfile").addEventListener("click", exportProfiles);
+  $("backToTop").addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  window.addEventListener("scroll", () => { $("backToTop").hidden = window.scrollY < 360; }, { passive: true });
   $("localProfile").addEventListener("change", () => {
     const profile = profiles.find(value => value.id === $("localProfile").value); if (!profile) return;
     activeProfileId = profile.id; model = createModel(catalog, core, profile);
