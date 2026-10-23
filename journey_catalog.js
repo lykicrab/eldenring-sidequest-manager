@@ -1565,6 +1565,19 @@ window.JOURNEY_CATALOG = {
             "seluvis.cellar"
           ],
           "warning": "必须在将猎杀指头刀交给菈妮之前完成目标奖励。"
+        },
+        {
+          "id": "seluvis.end",
+          "title": "菈妮收下猎杀指头刀后，回赛尔维斯塔领取铃珠与教授套装",
+          "detail": "将猎杀指头刀交给菈妮后离开并刷新区域，回到赛尔维斯魔法师塔，在赛尔维斯遗体处领取赛尔维斯的铃珠与教授套装。若此前尝试把琥珀色药水交给菈妮、赛尔维斯已经死亡，就现在直接回塔收取，不必等到交刀。",
+          "order": 610,
+          "region": "三姊妹塔：赛尔维斯魔法师塔",
+          "options": [],
+          "needs": [
+            "ranni.blade"
+          ],
+          "after": [],
+          "warning": "交猎杀指头刀前，先领取赛尔维斯路线中仍需要的奖励与傀儡。"
         }
       ]
     },
@@ -2336,6 +2349,21 @@ window.JOURNEY_CATALOG = {
             "gideon.village"
           ],
           "warning": "在黑剑玛利喀斯前完成报告和奖励领取。"
+        },
+        {
+          "id": "gideon.end",
+          "title": "击败黑剑玛利喀斯后，击败基甸并收取全知套装与权杖",
+          "detail": "黑剑玛利喀斯战后，前往灰烬王城的黄金树圣域，击败作为首领出现的基甸，确认收取全知套装与全知权杖。若还有蒙格温王朝、圣树等情报奖励，先在黑剑战前向基甸报告并领取。",
+          "order": 1300,
+          "region": "灰烬王城：黄金树圣域",
+          "options": [],
+          "needs": [
+            "story.maliketh"
+          ],
+          "after": [
+            "gideon.report"
+          ],
+          "warning": "先领取基甸已解锁的隐藏半神情报奖励，再推进黑剑战。"
         }
       ]
     },
@@ -2879,6 +2907,21 @@ window.JOURNEY_CATALOG = {
           "warning": ""
         },
         {
+          "id": "goldmask.corhynTonic",
+          "title": "向柯林提出遗忘药水后刷新，回桥上收取铃珠、长袍与连枷",
+          "detail": "在巨人山顶观星废墟南侧的桥上向柯林提出遗忘药水后，离开并刷新区域，再回他最后停留处。若他已离开，检查地面并收取柯林的铃珠、柯林长袍与连枷；若仍在，先听完对白再刷新。",
+          "order": 747,
+          "region": "巨人山顶：观星废墟南侧桥",
+          "options": [
+            "tonic"
+          ],
+          "needs": [],
+          "after": [
+            "goldmask.tonic"
+          ],
+          "warning": ""
+        },
+        {
           "id": "goldmask.rune",
           "title": "找到金面具遗体取得完美律法修复卢恩，刷新取装备，再按分支回访柯林",
           "detail": "黑剑战后到灰烬王城，在原竞技场方向、断桥下方山坡找金面具遗体，拾取完美律法的修复卢恩；离开刷新可再检查其套装。柯林则按药水对白分支到灰烬王城或巨人山顶原桥处回访。",
@@ -2894,6 +2937,24 @@ window.JOURNEY_CATALOG = {
             "goldmask.secret",
             "goldmask.snow",
             "goldmask.tonic"
+          ],
+          "warning": ""
+        },
+        {
+          "id": "goldmask.corhynEnd",
+          "title": "黑剑战后回访柯林，刷新收取铃珠、长袍与连枷",
+          "detail": "完成金面具线后，按给柯林提出遗忘药水与否查找：没有提出时，在灰烬王城原巨枪附近找柯林，听完对白并刷新；提出过时由单独步骤安排回巨人山顶观星废墟南侧桥收取。离开并重新加载区域，在他最后出现的位置收取柯林的铃珠、柯林长袍与连枷。若人已不在，检查该位置的遗物。",
+          "order": 1260,
+          "region": "灰烬王城 / 巨人山顶",
+          "options": [
+            "rune",
+            "final"
+          ],
+          "needs": [
+            "story.maliketh"
+          ],
+          "after": [
+            "goldmask.rune"
           ],
           "warning": ""
         },
@@ -4508,10 +4569,23 @@ window.JOURNEY_CATALOG = {
           "needs": [
             "story.mountains"
           ],
-          "after": [
-            "yura.eleonora"
+          "after": [],
+          "warning": "进入巨人山顶后，尤拉支线会结束；如果还想完成尤拉流程，请在到达这里前处理完。"
+        },
+        {
+          "id": "shabriri.armor",
+          "title": "击败夏玻利利或继承癫火后，收取浪人套装",
+          "detail": "夏玻利利在赐福“萨米尔废墟”旁出现后，击败他即可取得浪人套装；如果选择继承癫火，套装会留在他原来站立的位置。只为拿套装不需要进入三指门，想保留其他结局时可直接击败夏玻利利后拾取。",
+          "order": 700,
+          "region": "巨人山顶：萨米尔废墟",
+          "options": [],
+          "needs": [
+            "story.mountains"
           ],
-          "warning": ""
+          "after": [
+            "shabriri.talk"
+          ],
+          "warning": "夏玻利利出现时尤拉支线会终止；想完成尤拉线，先在进入巨人山顶前处理完。接受癫火会锁定其他结局，除非之后使用米凯拉的针解除。"
         }
       ]
     },
