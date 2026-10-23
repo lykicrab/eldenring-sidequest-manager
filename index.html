@@ -18,7 +18,7 @@
   </header>
   <main class="page">
     <p class="intro">完成一步，接着下一步。误勾时可到 NPC 个人进度中修改。</p>
-    <div class="local-profile-bar"><label for="localProfile">当前周目</label><select id="localProfile" aria-label="当前周目"></select><button id="newProfile" type="button" class="secondary-button">新建周目</button><button id="cloneProfile" type="button" class="secondary-button" disabled>复制</button><button id="renameProfile" type="button" class="secondary-button" disabled>改名</button><button id="deleteProfile" type="button" class="secondary-button danger-button" disabled>删除</button><button id="importProfile" type="button" class="secondary-button">导入周目备份</button><button id="exportProfile" type="button" class="secondary-button" disabled>导出周目备份</button><input id="profileFile" type="file" accept=".json,application/json" multiple hidden><span id="localSaveStatus" role="status" aria-live="polite" hidden></span></div>
+    <div class="local-profile-bar"><label for="localProfile">当前计划</label><select id="localProfile" aria-label="当前计划"></select><button id="newProfile" type="button" class="secondary-button">新建计划</button><button id="cloneProfile" type="button" class="secondary-button" disabled>复制</button><button id="renameProfile" type="button" class="secondary-button" disabled>改名</button><button id="deleteProfile" type="button" class="secondary-button danger-button" disabled>删除</button><button id="importProfile" type="button" class="secondary-button">导入计划备份</button><button id="exportProfile" type="button" class="secondary-button" disabled>导出计划备份</button><input id="profileFile" type="file" accept=".json,application/json" multiple hidden><span id="localSaveStatus" role="status" aria-live="polite" hidden></span></div>
     <p id="profileMessage" class="profile-message" role="status" hidden></p>
     <nav class="view-tabs" aria-label="查看内容">
       <button type="button" data-view="next" class="active" aria-current="page">支线进度 <span id="nextCount"></span></button>
@@ -35,15 +35,15 @@
       </section>
     </section>
     <section id="npcView" class="aux-view" hidden aria-labelledby="npcTitle"><div class="aux-heading"><div><p class="eyebrow">查看与修改</p><h2 id="npcTitle">NPC 个人进度</h2><p>选择支线结局，或在全部步骤中修改完成记录。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><label class="npc-picker-label" for="npcPicker">查看 NPC<select id="npcPicker"></select></label><div id="choiceConflict" class="choice-conflict" role="alert" hidden></div><section id="npcDetail" class="npc-personal"></section></section>
-    <section id="collectionsView" class="aux-view" hidden aria-labelledby="collectionTitle"><div class="aux-heading"><div><p class="eyebrow">辅助查看</p><h2 id="collectionTitle">支线收集表</h2><p>勾选表示本周目已经取得，交付后无需取消。收集与任务步骤分别保存。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><div id="collectionList"></div></section>
+    <section id="collectionsView" class="aux-view" hidden aria-labelledby="collectionTitle"><div class="aux-heading"><div><p class="eyebrow">辅助查看</p><h2 id="collectionTitle">支线收集表</h2><p>勾选表示本计划已经取得，交付后无需取消。收集与任务步骤分别保存。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><div id="collectionList"></div></section>
     <p id="progressStatus" class="sr-only" role="status" aria-live="polite"></p>
     <footer class="page-footer"><span>支线管理 · 进度保存在当前浏览器</span><span>任务说明来自现有支线表</span></footer>
   </main>
   <button id="backToTop" class="back-to-top" type="button" aria-label="回到顶部" title="回到顶部" hidden>↑<span>回到顶部</span></button>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
   <dialog id="profileNameDialog" aria-labelledby="profileNameTitle"><form id="profileNameForm">
-    <h2 id="profileNameTitle">新建周目</h2>
-    <label class="profile-name-label" for="profileName">周目名称<input id="profileName" maxlength="60" required autocomplete="off"></label>
+    <h2 id="profileNameTitle">新建计划</h2>
+    <label class="profile-name-label" for="profileName">计划名称<input id="profileName" maxlength="60" required autocomplete="off"></label>
     <fieldset id="newProfileRoutes"><legend>初始安排</legend><label><input id="newProfileBase" type="checkbox" checked>本体支线</label><label><input id="newProfileDlc" type="checkbox">黄金树幽影</label><p>之后可在 NPC 个人进度中调整分支与结局。</p></fieldset>
     <p id="profileNameError" class="step-warning" role="alert" hidden></p>
     <div class="profile-dialog-actions"><button id="cancelProfileName" type="button" class="secondary-button">取消</button><button type="submit" class="secondary-button primary-button">保存</button></div>
