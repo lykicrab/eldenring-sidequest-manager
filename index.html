@@ -28,7 +28,7 @@
       <div id="progressWarning" class="step-warning" hidden></div>
       <section class="quests-section" aria-label="支线列表">
         <div class="quests-heading"><label class="search-field"><span aria-hidden="true">⌕</span><input id="questSearch" type="search" placeholder="搜索 NPC、地点或步骤" aria-label="搜索 NPC、地点或步骤"></label></div>
-        <div class="filter-row"><div class="category-tabs" role="group" aria-label="游戏范围"><button type="button" data-category="all" class="active" aria-pressed="true">全部 <span id="allCount"></span></button><button type="button" data-category="base" aria-pressed="false">本体 <span id="baseCount"></span></button><button type="button" data-category="dlc" aria-pressed="false">黄金树幽影 <span id="dlcCount"></span></button></div><span class="filter-note">全部列表且清空搜索时，可拖动卡片排序</span></div>
+        <div class="filter-row"><div class="category-tabs" role="group" aria-label="游戏范围"><button type="button" data-category="all" class="active" aria-pressed="true">全部 <span id="allCount"></span></button><button type="button" data-category="base" aria-pressed="false">本体 <span id="baseCount"></span></button><button type="button" data-category="dlc" aria-pressed="false">黄金树幽影 <span id="dlcCount"></span></button></div></div>
         <div id="questGrid" class="quest-grid"></div>
         <details id="finishedSection" class="finished-section"><summary><span>已完成的支线</span><span id="finishedCount" class="count-badge"></span></summary><div id="finishedList" class="finished-list"></div></details>
       </section>
@@ -36,7 +36,6 @@
     <section id="npcView" class="aux-view" hidden aria-labelledby="npcTitle"><div class="aux-heading"><div><p class="eyebrow">查看与修改</p><h2 id="npcTitle">NPC 个人进度</h2><p>选择支线结局，或在全部步骤中修改完成记录。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><label class="npc-picker-label" for="npcPicker">查看 NPC<select id="npcPicker"></select></label><div id="choiceConflict" class="choice-conflict" role="alert" hidden></div><section id="npcDetail" class="npc-personal"></section></section>
     <section id="collectionsView" class="aux-view" hidden aria-labelledby="collectionTitle"><div class="aux-heading"><div><p class="eyebrow">辅助查看</p><h2 id="collectionTitle">支线收集表</h2><p>勾选表示本计划已经取得，交付后无需取消。收集与任务步骤分别保存。</p></div><button type="button" class="secondary-button" data-back>返回支线进度</button></div><div id="collectionList"></div></section>
     <p id="progressStatus" class="sr-only" role="status" aria-live="polite"></p>
-    <footer class="page-footer"><span>支线管理 · 进度保存在当前浏览器</span><span>任务说明来自现有支线表</span></footer>
   </main>
   <button id="backToTop" class="back-to-top" type="button" aria-label="回到顶部" title="回到顶部" hidden>↑<span>回到顶部</span></button>
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
